@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="img/bhivelogo.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/checkout.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <title>Checkout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    
+</head>
+<body>
+    <form class="head">
+            <a href="cart.html" class="back-button"><i class="fas fa-arrow-left"></i></a>
+        <h1>Checkout Order <i class="fas fa-receipt"></i> </h1>
+    </form>
+
+    <div class="person">
+        <h2><i class="fas fa-user"></i> Account</h2>
+        <p class="name"> <!--Name of customer here--></p>   
+        <p class="number"> <!--Contact # of customer here--> </p>
+        <p class="email"> <!--Email Address of customer here--> </p>
+    </div>
+    
+    <div class="items">
+        <h2>
+            <i class="fas fa-list"></i> List of Order
+        </h2>
+        <p class="order"> <!--List of Order here --></p>
+
+    </div>
+
+<form id="checkout-form" class="checkout-form">
+
+<div class="payment">
+    <h2>
+        <i class="fas fa-credit-card"></i> Payment Method
+    </h2>
+
+    <div class="mode">
+        
+        <label for="cash">
+            <input type="radio" id="cash" name="payment-method" value="Cash" required>
+            <i class="fas fa-money-bill-wave"></i> Cash
+        </label> <br>
+
+        
+        <label for="gcash">
+            <input type="radio" id="gcash" name="payment-method" value="Gcash" required>
+            <img src="img/gcash.png" alt="Gcash Image" id="gcashicon"> Gcash
+        </label>
+    </div>
+
+</div>
+
+<div class="order-option">
+
+<label>
+
+<i class="fas fa-utensils"></i>
+
+<select id="order-type" name="order-type" required>
+  <option value="" disabled selected>Select order type</option>
+  <option value="dine-in">Dine-in</option>
+  <option value="pickup">Pickup</option>
+  <option value="take-out">Take-out</option>
+</select>
+
+</label>
+
+</div>
+
+
+<div class="notes">
+    <label>
+        <i class="fas fa-sticky-note"></i>
+        <input type="text" placeholder="Add notes to your order..." id="notes" name="notes">
+    </label>
+</div>
+
+<div class="submit">
+    <button class="submit-button" type="submit" id="submit-button">Submit Order</button>
+</div>
+
+</form>
+
+<div id="gcash-overlay">
+
+  <div class="gcash-modal">
+    <h2>GCash Payment</h2>
+    <p>Scan the QR code or copy the number below to pay.</p>
+    <img src="img/gcash.jpg" alt="GCash QR">
+
+    <div class="gcash-no">
+      <strong>Gcash Number:</strong>
+      <span id="gcash-number">09761016814</span>
+      <div><button type="button" id="copy-gcash-number" title="Copy GCash Number">
+        <i class="fas fa-copy"></i>
+      </button></div>
+    </div>
+
+    <div class="proof-part">
+  <label id="pf" for="payment-proof">
+    <i class="fas fa-upload"></i>
+    <span style="color:#000000;">Upload File</span>
+    <input type="file" id="payment-proof" accept="image/*" style="display:none;">
+  </label>
+  <span id="file-chosen" style="color:#222;">No file chosen</span>
+</div>
+
+    <button id="confirm-gcash">Confirm</button>
+    <button id="close-gcash">Cancel</button>
+    <div id="gcash-error" style="display:none;"></div>
+  </div>
+
+</div>
+
+<!-- Classic Firebase SDKs (v8) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+
+<!-- Your config -->
+<script src="js/firebase-config.js"></script>
+
+
+<script>
+
+const paymentProofInput = document.getElementById('payment-proof');
+const fileChosen = document.getElementById('file-chosen');
+paymentProofInput.addEventListener('change', function() {
+  fileChosen.textContent = this.files && this.files.length > 0 ? this.files[0].name : "No file chosen";
+});
+
+</script>
+
+    <script type="module" src="js/checkout.js"></script>
+
+</body>
+</html>

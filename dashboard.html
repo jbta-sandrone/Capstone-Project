@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="icon" type="image/png" href="img/bhivelogo.jpg">
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>CLIQ Dashboard</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">-->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/homepage.css">
+    <link rel="stylesheet" href="css/orderpage.css">
+    <link rel="stylesheet" href="css/history.css">
+
+    <link rel="stylesheet" href="css/espresso.css">
+    <link rel="stylesheet" href="css/milktea.css">
+    <link rel="stylesheet" href="css/ftea.css">
+    <link rel="stylesheet" href="css/silog.css">
+    <link rel="stylesheet" href="css/sandwich.css">
+    <link rel="stylesheet" href="css/snacks.css">
+    <link rel="stylesheet" href="css/ricemeal.css">
+    <link rel="stylesheet" href="css/noodlepasta.css">
+    <link rel="stylesheet" href="css/fries.css">
+    <link rel="stylesheet" href="css/extras.css">
+    <link rel="stylesheet" href="css/bestseller.css">
+
+    <link rel="stylesheet" href="css/darkmode.css">
+        
+</head>
+<body>     
+
+<div class="container1">
+
+ <form class="form1">
+    
+    <a href="menu.html" id="menu"><i class="fas fa-bars" id="menu-icon" style="font-size: 24px; cursor: pointer;"></i></a>
+    <h1> B-Hive <img src="img/bhivelogo.jpg" class="logo"></h1>
+
+     <a href="cart.html" id="cart"><i class="fas fa-shopping-cart"></i></a>
+    <h6 class="number-cart">0</h6>
+    <a href="notification.html" id="notification"><i class="fas fa-bell"></i></a>
+    <h5 class="number-bell">0</h5>
+    
+    <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+        <span class="visually-hidden">New alerts</span>
+    </span>
+    
+</form>
+
+  <div class="nav-container">
+    <ul class="nav">
+        <li class="nav-item">
+          <a class="nav1" id="home-link" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav3" id="order-link" href="#">Order</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav4" id="history-link" href="#">History</a>
+        </li>
+    </ul>
+    <div class="vertical-hr"></div>
+</div>
+
+</div>
+
+    <!--HOME SECTION-->
+<div class="home" id="home">
+
+      <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Search..." class="search-bar">
+        <i class="fas fa-search search-icon"></i>
+        <div id="suggestions" class="suggestions-container"></div>
+    </div>
+
+    <div class="viewmenu">
+        <h2 id="viewmenu"> Best Seller</h2>
+        <h4 id="viewall"> VIEW ALL</h4>
+    </div>
+
+<div class="homebackground">
+
+  <div class="table">
+
+    <!-- Dynamic bestseller items will be injected here by JS -->
+
+  </div>
+
+</div>
+
+</div>
+
+      <!--ORDER SECTION-->
+      <div class="card-group" id="card-group">
+
+  <div class="card" id="card1">
+    <div class="card-icon">
+    <img src="img/milktea.png" alt="bubble-tea" style="width:30px; height:30px;">
+    </div>
+  </div>
+
+
+  <div class="card" id="card2">
+    <div class="card-icon">
+    <img src="img/espresso.png" alt="paper-cup" style="width:30px; height:33px;">
+    </div>
+  </div>
+
+
+  <div class="card" id="card3">
+    <div class="card-icon">
+    <img src="img/fruit tea.png" alt="orange-juice" style="width:30px; height:33px;">
+    </div>
+  </div>
+
+
+  <div class="card" id="card4">
+    <div class="card-icon">
+    <img src="img/silog.png" alt="cutlery" style="width:40px; height:33px;">
+    </div>
+  </div>
+
+
+  <div class="card" id="card5">
+    <div class="card-icon">
+    <img src="img/sandwich.png" alt="sandwich" style="width:40px; height:30px;">
+    </div>
+  </div>
+
+
+  <div class="card" id="card6">
+    <div class="card-icon">
+    <img src="img/snacks.png" alt="cookie" style="width:40px; height:30px;">
+    </div>
+  </div>
+
+
+  <div class="card" id="card7">
+    <div class="card-icon">
+    <img src="img/ricemeal.png" alt="rice" style="width:40px; height:32px;">
+    </div>
+  </div>
+
+
+  <div class="card" id="card8">
+    <div class="card-icon">
+    <img src="img/noodlepasta.png" alt="noodles" style="width:40px; height:32px;">
+    </div>
+  </div>
+
+
+  <div class="card" id="card9">
+    <div class="card-icon">
+    <img src="img/fries.png" alt="french-fries" style="width:40px; height:30px;">
+    </div>
+  </div>
+
+
+  <div class="card" id="card10">
+    <div class="card-icon">
+    <img src="img/egg.png" alt="egg" style="width:40px; height:20px;">
+    </div>
+  </div>
+
+
+  <div class="card" id="card11">
+    <div class="card-icon">
+    <img src="img/teatox1.png" alt="star" style="width:40px; height:30px;">
+    </div>
+  </div>
+
+
+</div>
+
+<!-- Add to Cart Overlay -->
+<div id="cart-overlay" style="display:none; position:fixed; left:0; right:0; bottom:0; height:auto; min-height:260px; background:#fff; box-shadow:0 -2px 16px rgba(0,0,0,0.2); z-index:9999; transition:transform 0.4s cubic-bezier(.4,0,.2,1); transform:translateY(100%);">
+  <button id="cart-overlay-x" style="position:absolute; top:10px; right:16px; background:none; border:none; font-size:22px; color:#888; cursor:pointer;">&times;</button>
+  <div id="cart-overlay-content">
+    <!-- Dynamic customization form will be injected here -->
+  </div>
+</div>
+
+
+
+      <!--HISTORY SECTION-->
+    <div class="history-tab" id="history-tab">
+        
+        <div class="history-order" id="history-order">
+          <!--Order History Displays here-->
+          
+        </div>
+
+        <div class="history-details" id="history-details">
+            <!--Order Details Content Displays here-->
+        </div>
+
+        <button id="delete-all-history">
+          <i class="fa fa-trash"></i> Delete All History
+        </button>
+
+    </div>
+
+    <div id="success" class="success" style="display: none;">
+        Added to cart successfully!
+    </div>
+
+<!--CATEGORY PARTTT-->
+
+<div class="milktea-part">
+  <h1 class="milktea-title">Milk Tea</h1>
+  <div class="milktea-grid">
+    <!-- JS will inject .milktea-section cards here -->
+  </div>
+</div>
+
+<div class="espresso-part">
+    <h1 class="espresso-title">Espresso</h1>
+    <div class="espresso-grid">
+      <!-- JS will inject .espresso-section cards here -->
+    </div>
+</div>
+
+<div class="ftea-part">
+    <h1 class="ftea-title">Fruit Tea</h1>
+    <div class="ftea-grid">
+      <!-- JS will inject .ftea-section cards here -->
+    </div>
+</div>
+
+<div class="silog-part">
+  <h1 class="silog-title">Silog</h1>
+  <div class="silog-grid">
+    <!-- JS will render all items here -->
+  </div>
+</div>
+
+<div class="sandwich-part">
+  <h1 class="sandwich-title">Sandwiches</h1>
+  <div class="sandwich-grid">
+    <!-- JS will inject .sandwich-section cards here -->
+  </div>
+ 
+</div>
+
+<div class="snacks-part">
+  <h1 class="snacks-title">Snacks</h1>
+  <div class="snacks-grid">
+    <!-- JS will inject .snacks-section cards here -->
+  </div>
+ 
+</div>
+
+<div class="ricemeal-part">
+  <h1 class="ricemeal-title">Rice Meals</h1>
+  <div class="ricemeal-grid">
+    <!-- JS will inject .ricemeal-section cards here -->
+  </div>
+ 
+</div>
+
+<div class="noodlepasta-part">
+  <h1 class="noodlepasta-title">Noodles & Pasta</h1>
+  <div class="noodlepasta-grid">
+    <!-- JS will inject .noodlepasta-section cards here -->
+  </div>
+ 
+</div>
+
+<div class="fries-part">
+  <h1 class="fries-title">Fries</h1>
+  <div class="fries-grid">
+    <!-- JS will inject .fries-section cards here -->
+  </div>  
+ 
+</div>
+
+<div class="extras-part">
+  <h1 class="extras-title">Extras</h1>
+  <div class="extras-grid">
+    <!-- JS will inject .extras-section cards here -->
+  </div>
+ 
+</div>
+
+<div class="bestseller-part">
+  <h1 class="bestseller-title">Best Seller</h1>
+  <div class="bestseller-grid">
+    <!-- JS will inject .bestseller-section cards here -->
+  </div>  
+ 
+</div>
+
+
+
+<div id="confirmation-modal" class="modal">
+  <div class="modal-content">
+    <p id="modal-message">Are you sure you want to delete this record?</p>
+    <div class="modal-actions">
+      <button id="modal-confirm-btn" class="modal-btn confirm">Confirm</button>
+      <button id="modal-cancel-btn" class="modal-btn cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Classic Firebase SDKs (v8) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+
+<!-- Your config -->
+<script src="js/firebase-config.js"></script>
+
+
+
+
+      <script>
+      document.getElementById('order-link').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    const cardGroup = document.getElementById('card-group');
+    const homeSection = document.getElementById('home');
+    const milkteaSection = document.querySelector('.milktea-section');
+    const espressoSection = document.querySelector('.espresso-section');
+    const fteaSection = document.querySelector('.ftea-section');
+    const cartContainer = document.querySelector('.cart-container');
+    const historyTab = document.getElementById('history-tab');
+
+    homeSection.style.display = 'none';
+    milkteaSection.style.display = 'block';
+    espressoSection.style.display = 'none';
+    fteaSection.style.display = 'none';
+    historyTab.style.display = 'none';
+    cardGroup.style.display = 'flex';
+    cartContainer.style.display = 'block';
+
+    document.getElementById('card1').click();
+});
+
+document.getElementById('home-link').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    const cardGroup = document.getElementById('card-group');
+    const homeSection = document.getElementById('home');
+    const milkteaSection = document.querySelector('.milktea-section');
+    const espressoSection = document.querySelector('.espresso-section');
+    const fteaSection = document.querySelector('.ftea-section');
+    const cartContainer = document.querySelector('.cart-container');
+    const historyTab = document.getElementById('history-tab');
+
+    cardGroup.style.display = 'none';
+    milkteaSection.style.display = 'none';
+    espressoSection.style.display = 'none';
+    fteaSection.style.display = 'none';
+    historyTab.style.display = 'none';
+    homeSection.style.display = 'block';
+    cartContainer.style.display = 'none';
+});
+
+document.getElementById('history-link').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    const cardGroup = document.getElementById('card-group');
+    const homeSection = document.getElementById('home');
+    const milkteaSection = document.querySelector('.milktea-section');
+    const espressoSection = document.querySelector('.espresso-section');
+    const fteaSection = document.querySelector('.ftea-section');
+    const cartContainer = document.querySelector('.cart-container');
+    const historyTab = document.getElementById('history-tab');
+
+    cardGroup.style.display = 'none';
+    homeSection.style.display = 'none';
+    milkteaSection.style.display = 'none';
+    espressoSection.style.display = 'none';
+    fteaSection.style.display = 'none';
+    historyTab.style.display = 'block';
+    cartContainer.style.display = 'none';
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('home-link').click();
+});
+
+
+</script>
+
+
+
+<script type="module" src="js/cart.js"></script>
+<script type="module" src="js/ordertab.js"></script>
+
+
+<script type="module" src="js/espresso.js"></script>
+<script type="module" src="js/milktea.js"></script>
+<script type="module" src="js/ftea.js"></script>
+<script type="module" src="js/silog.js"></script>
+<script type="module" src="js/sandwich.js"></script>
+<script type="module" src="js/snacks.js"></script>
+<script type="module" src="js/ricemeal.js"></script>
+<script type="module" src="js/noodlepasta.js"></script>
+<script type="module" src="js/fries.js"></script>
+<script type="module" src="js/extras.js"></script>
+<script type="module" src="js/bestseller.js"></script>
+
+<script type="module" src="js/numberbell.js"></script>
+<script type="module" src="js/cartnumber.js"></script>
+<script type="module" src="js/history.js"></script>
+
+
+<script type="module" src="js/darkmode.js"></script>
+<script type="module" src="js/fastform.js"></script>
+<script type="module" src="js/admin.js"></script>
+
+<script type="module" src="js/orderqueue.js"></script>
+<script type="module" src="js/homepage.js"></script>
+
+
+
+</body>
+</html></html>
+

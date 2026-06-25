@@ -1,0 +1,138 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    font-family: 'Quicksand', Arial, sans-serif;
+    animation: slideToLeft 0.5s ease-in-out;
+    background-color: #fffbe6;
+}
+
+@keyframes slideToLeft {
+    from {
+        transform: translateX(100%); /* Start off-screen to the right */
+        opacity: 0; /* Start invisible */
+    }
+    to {
+        transform: translateX(0); /* End at the original position */
+        opacity: 1; /* Fully visible */
+    }
+}
+.adfeedback-header {
+    display: flex;
+    background-color: #d0b273;
+}
+.adfeedback-header h1 {
+    margin: 0 auto;
+    padding: 12px;
+    font-size: 30px;
+}
+.adfeedback-header .back {
+    position: absolute;
+    left: 10px;
+    top: 15px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.feedback-content {
+    padding: 20px;
+    border: 2px solid #d0b273;
+    margin: 20px auto;
+    border-radius: 10px;
+    background-color: #fffbe6;
+    width: 85%;
+    max-width: 700px;
+}
+.feedback-content h2 {
+    text-align: center;
+    margin: 0;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+.feedback-entry {
+    padding: 12px 16px;
+}
+.feedback-entry div {
+    padding: 3px;
+}
+
+.success {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;
+    background-color: #4caf50;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    display: none;
+    font-size: 16px;
+    width: 70%;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 2000; /* Higher z-index to bring it in front of other elements */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    z-index: 2001; /* Ensure the modal content is above the modal background */
+}
+
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.modal-btn.confirm {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.modal-btn.cancel {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.view-image-toggle .toggle-img-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 18px;
+    color: #1976d2;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+.view-image-toggle .toggle-img-btn:hover {
+    color: #0d47a1;
+}

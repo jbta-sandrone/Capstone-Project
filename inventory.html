@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="img/bhivelogo.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <link rel="stylesheet" href="css/inventory.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="inventory-header">
+
+        <button class="back" onclick="window.location.href='admindashboard.html'"><i class="fas fa-arrow-left"></i></button>
+        <h1>Manage Item<i class="fas fa-box"></i></h1>
+
+    </div>
+
+    
+
+    <div id="inventory-list" class="inventory-list">
+
+    <button id="add-new-item" class="add-new-item"> Add New Item
+    <i class="fas fa-plus"></i>
+     </button>
+
+    <div class="milktea-inv" id="items">
+        <h3>Milk Tea</h3>
+        <div id="milktea-items" class="item-container">
+            <!-- Milk Tea items will be added here -->
+        </div>
+    </div>
+
+    <div class="espresso-inv" id="items">
+        <h3>Espresso</h3>
+        <div id="espresso-items" class="item-container">
+            <!-- Espresso items will be added here -->
+        </div>
+    </div>
+
+    <div class="fruittea-inv" id="items">
+        <h3>Fruit Tea</h3>
+        <div id="fruittea-items" class="item-container">
+            <!-- Fruit Tea items will be added here -->
+        </div>
+    </div>
+
+    <div class="silog-inv" id="items">
+        <h3>Silog</h3>
+        <div id="silog-items" class="item-container">
+            <!-- Silog items will be added here -->
+        </div>
+    </div>
+
+    <div class="sandwiches-inv" id="items">
+        <h3>Sandwiches</h3>
+        <div id="sandwiches-items" class="item-container">
+            <!-- Sandwiches items will be added here -->
+        </div>
+    </div>
+
+    <div class="snacks-inv" id="items">
+        <h3>Snacks</h3>
+        <div id="snacks-items" class="item-container">
+            <!-- Snacks items will be added here -->
+        </div>
+    </div>
+
+    <div class="ricemeals-inv" id="items">
+        <h3>Rice Meals</h3>
+        <div id="ricemeals-items" class="item-container">
+            <!-- Rice Meals items will be added here -->
+        </div>
+    </div>
+
+    <div class="noodlepasta-inv" id="items">
+        <h3>Noodles & Pasta</h3>
+        <div id="noodlepasta-items" class="item-container">
+            <!-- Noodles & Pasta items will be added here -->
+        </div>
+    </div>
+
+    <div class="fries-inv" id="items">
+        <h3>Fries</h3>
+        <div id="fries-items" class="item-container">
+            <!-- Fries items will be added here -->
+        </div>
+    </div>
+
+    <div class="extras-inv" id="items">
+        <h3>Extras</h3>
+        <div id="extras-items" class="item-container">
+            <!-- Extras items will be added here -->
+        </div>
+    </div>
+
+    <div class="bestseller-inv" id="items">
+        <h3>Best Seller</h3>
+        <div id="bestseller-items" class="item-container">
+            <!-- Best Seller items will be added here -->
+        </div>
+    </div>
+
+
+    </div>
+
+    <div id="fast-form-overlay" class="fast-form-overlay" style="display:none;">
+  <div class="fast-form-popup">
+    <button id="close-fast-form" class="close-fast-form">&times;</button>
+    <h2 class="item-title">Add New Item</h2>
+    <form id="fast-add-form">
+
+      <label for="item-location">Category:</label>
+      <select id="item-location" name="item-location" required>
+        <option value="" disabled selected>Select category</option>
+        <option value="Milk Tea">Milk Tea</option>
+        <option value="Espresso">Espresso</option>
+        <option value="Fruit Tea">Fruit Tea</option>
+        <option value="Silog">Silog</option>
+        <option value="Sandwiches">Sandwiches</option>
+        <option value="Snacks">Snacks</option>
+        <option value="Rice Meals">Rice Meals</option>
+        <option value="Noodles & Pasta">Noodles & Pasta</option>
+        <option value="Fries">Fries</option>
+        <option value="Extras">Extras</option>
+        <option value="Best Seller">Best Seller</option>
+        
+      </select>
+
+      <div id="size-price-container" style="display:none; margin-bottom:10px;">
+    <!-- Dynamic size/price fields will be inserted here -->
+</div>
+<button type="button" id="add-size-btn" style="display:none; margin-bottom:10px;">Add Option</button>
+
+      <label for="item-name">Item Name:</label>
+      <input type="text" id="item-name" name="item-name" required>
+      
+      <label for="item-price">Price:</label>
+      <input type="number" id="item-price" name="item-price" required min="1" value="1">
+
+
+      <label for="image-item">Image:</label>
+      <input type="file" id="item-image" name="item-image" accept="image/*" required>
+      <button type="submit" class="submit-fast-form">Add</button>
+    </form>
+  </div>
+</div>
+
+<div id="success" class="success" style="display: none;">
+         Deleted Successfully!
+</div>
+
+
+<div id="confirmation-modal" class="modal">
+  <div class="modal-content">
+    <p id="modal-message">Are you sure you want to delete this record?</p>
+    <div class="modal-actions">
+      <button id="modal-confirm-btn" class="modal-btn confirm">Confirm</button>
+      <button id="modal-cancel-btn" class="modal-btn cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Classic Firebase SDKs (v8) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+
+<!-- Your config -->
+<script src="js/firebase-config.js"></script>
+
+
+
+
+<script> 
+
+document.getElementById('add-new-item').addEventListener('click', function() {
+    document.getElementById('fast-form-overlay').style.display = 'flex';
+});
+document.getElementById('close-fast-form').addEventListener('click', function() {
+    document.getElementById('fast-form-overlay').style.display = 'none';
+});
+document.getElementById('fast-add-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // You can handle the form data here (e.g., send to Firebase)
+    // Example:
+    // const name = document.getElementById('item-name').value;
+    // const price = document.getElementById('item-price').value;
+    // const qty = document.getElementById('item-qty').value;
+    // ...save to database...
+    document.getElementById('fast-form-overlay').style.display = 'none';
+    alert('Success!');
+});
+
+const overlay = document.getElementById('fast-form-overlay');
+const overlayClose = document.getElementById('close-fast-form');
+if (overlayClose) {
+    overlayClose.onclick = function() {
+        overlay.style.display = 'none';
+        window.editingItem = null;
+        document.getElementById('fast-add-form').reset();
+        // Reset form title and enable category dropdown
+        document.querySelector('.fast-form-popup .item-title').textContent = "Add New Item";
+        document.getElementById('item-location').removeAttribute('disabled');
+        // Reset submit button text to "Add"
+        const submitBtn = document.querySelector('.fast-form-popup .submit-fast-form');
+        if (submitBtn) submitBtn.textContent = "Add";
+    };
+}
+
+</script>
+
+<script type="module" src="js/fastform.js"></script>
+<script type="module" src="js/admin.js"></script>
+
+<script type="module" src="js/admininterface.js"></script>
+
+
+</body>
+</html>

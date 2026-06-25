@@ -1,0 +1,254 @@
+.ricemeal-part {
+    padding-bottom: 60px;
+    animation: slideUp 0.8s ease-in-out;
+    margin-left: 80px;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.ricemeal-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 120px;
+    font-family: fantasy;
+}
+
+.ricemeal-part .ricemeal-section {
+    padding: 1px;
+    background-color: #d0b273;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+    max-width: 100%;
+    display: block;
+}
+
+.ricemeal-part .ricemeal-section img {
+    width: 40%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.ricemeal-overlay .ricemeal-content img {
+    width: 40%;
+    max-width: 180px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+    margin: 0 auto;
+}
+
+.ricemeal-part .ricemeal-section h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    text-align: center;
+    padding-top: 10px;
+}
+
+.ricemeal-content h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 40px;
+    text-align: center;
+}
+
+.ricemeal-overlay .ricemeal-content p {
+    font-size: 14px;
+    text-align: left;
+    padding: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 15px;
+}
+
+.ricemeal-overlay .ricemeal-price {
+    display: inline;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.ricemeal-text {
+    flex: 1;
+    text-align: center;
+    margin-top: 25px;
+}
+
+.ricemeal-item {
+    display: flex;
+    align-items: flex-start;
+}
+.ricemeal-item img {
+    transition: transform 1s ease;
+}
+
+.ricemeal-content .spanquantity {
+    display: inline-block;
+    font-size: 12px;
+    color: #333;
+    width: 80%;
+    border-radius: 3px;
+    border: none;
+    padding: 6px;
+    border: 1px solid #ddd;
+    text-align: center;
+    max-width: 200px;
+    
+}
+.ricemeal-content .decrease-quantity {
+    
+    width: 40px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 6px;
+    border: none;
+    display: block;
+    color: black;
+    background-color: #e4e3e3;
+
+}
+
+.ricemeal-content .increase-quantity {
+    width: 40px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 6px;
+    border: none;
+    background-color: #e4e3e3;
+    color: black;
+}
+
+.increase-quantity:hover {
+    background-color: #28a745;
+    border: 2px solid rgb(0, 0, 0);
+}
+
+.decrease-quantity:hover {
+    background-color: #dc3545;
+    border: 2px solid rgb(0, 0, 0);
+}
+
+.ricemeal-content #overlay-add-to-cart-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+    background-color: #d0b273;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 80%;
+}
+
+.ricemeal-content .overlay-add-button {
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/*Rice Meal Grid*/
+
+.ricemeal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    justify-items: center;
+    width: 100%;
+}
+
+@media (min-width: 700px) {
+    .ricemeal-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+}
+@media (min-width: 1100px) {
+    .ricemeal-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+    }
+}
+@media (max-width: 699px) {
+    .ricemeal-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+
+.ricemeal-grid .ricemeal-section {
+    width: 100%;
+    max-width: 290px;
+    margin: 20px auto;
+}
+
+@media (min-width: 680px) and (max-width: 1099px) {
+    .ricemeal-price-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+    }
+}
+
+/* quantity controls refined */
+.ricemeal-content .spanquantity {
+  width: 90px;
+  max-width: 90px;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #e6e1d8;
+  background: #fff;
+  font-weight: 600;
+}
+.ricemeal-content .increase-quantity,
+.ricemeal-content .decrease-quantity {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: #f0f0f0;
+  cursor: pointer;
+  font-weight: 800;
+  transition: background 120ms ease, transform 100ms ease;
+}
+
+.add-to-cart
+ {
+    background-color: #fffbe6;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(160,110,30,0.12);
+  transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.add-to-cart i.fas.fa-cart-plus { font-size: 25px; }
+.add-to-cart:active,
+.ricemeal-content #overlay-add-to-cart-btn:active { transform: translateY(1px); }
+.add-to-cart[disabled] { opacity: 0.6; cursor: not-allowed; box-shadow: none; }

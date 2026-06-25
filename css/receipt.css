@@ -1,0 +1,40 @@
+
+body {
+    font-family: 'Quicksand', Arial, sans-serif;
+    background: #fffbe6;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+h1 {
+    color: #d0b273;
+    margin-top: 40px;
+}
+
+p {
+    font-size: 18px;
+    margin: 16px 0;
+}
+
+strong {
+    color: #d0b273;
+    font-size: 22px;
+}
+
+button.back {
+    margin-top: 40px;
+    padding: 10px 24px;
+    background: #d0b273;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background 0.2s;
+}
+button.back:hover {
+    background: #bfa100;
+}

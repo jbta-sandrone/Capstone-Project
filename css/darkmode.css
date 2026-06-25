@@ -1,0 +1,81 @@
+/* Default light mode styles (already in your CSS) */
+
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #121212; /* Dark background */
+    color: #ffffff; /* Light text */
+}
+body.dark-mode .form1 {
+    color: black;
+}
+body.dark-mode .nav-container a {
+    color: white;
+}
+body.dark-mode .nav-container .nav {
+    background-color: black;
+    border: 1px solid white;
+}
+body.dark-mode .suggestions-container {
+    background-color: #1e1e1e; /* Dark suggestions background */
+    color: #ffffff; /* Light text */
+}
+
+.nav-container.dark-mode {
+    background-color: #1e1e1e; /* Dark navigation background */
+}
+
+body.dark-mode .card-group .card {
+    background-color: #1e1e1e;
+    color: black; /* Light text */
+}
+
+.search-container.dark-mode {
+    background-color: #1e1e1e; /* Dark search bar background */
+    color: #ffffff; /* Light text */
+}
+
+.search-bar.dark-mode {
+    background-color: #333333; /* Dark input background */
+    color: #ffffff; /* Light text */
+    border: 1px solid #555555; /* Border for input */
+}
+
+.suggestions-container.dark-mode {
+    background-color: #1e1e1e; /* Dark suggestions background */
+    color: #ffffff; /* Light text */
+}
+
+button.dark-mode-toggle {
+    background-color: #333333; /* Dark button background */
+    color: #ffffff; /* Light text */
+    border: 1px solid #555555; /* Border for button */
+    cursor: pointer;
+}
+
+button.dark-mode-toggle:hover {
+    background-color: #444444; /* Hover effect */
+}
+body.dark-mode .history-details {
+    background-color: rgb(76, 76, 76);
+}
+body.dark-mode .history-order, .history-date {
+    color: white;
+}
+body.dark-mode .history-order {
+    background-color: rgb(76, 76, 76);
+}
+
+body.dark-mode .overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 1;
+}
+body.dark-mode .overlay button {
+   color: white;
+}
+
+body.dark-mode .modal-content {
+    background-color: #1e1e1e; /* Dark confirmation modal background */
+}
+body.dark-mode .milktea-part, .espresso-part, .ftea-part, .silog-part {
+    color: black;
+}

@@ -1,0 +1,126 @@
+/* --- Consistent font and body styling --- */
+body {
+    font-family: 'Quicksand', Arial, sans-serif;
+    margin: 0;
+    scroll-behavior: smooth; /* Enables smooth scrolling globally */
+    background-color: #fffbe6;
+    animation: slideToLeft 0.5s ease-in-out;
+}
+
+@keyframes slideToLeft {
+    from {
+        transform: translateX(100%); /* Start off-screen to the right */
+        opacity: 0; /* Start invisible */
+    }
+    to {
+        transform: translateX(0); /* End at the original position */
+        opacity: 1; /* Fully visible */
+    }
+}
+
+/* --- Header styling --- */
+.header {
+    background-color: #d0b273;
+    margin: 0;
+    padding: 14px 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+
+.header h1 {
+    margin: 0 auto; /* Center the title */
+    font-size: 26px;
+    letter-spacing: 1px;
+    
+}
+
+.header i {
+    margin-left: 5px;
+}
+
+.back {
+    background-color: #d0b273;
+    border: none;
+    font-size: 26px;
+}
+
+.back:hover, .logout:hover {
+    background-color: rgb(157, 155, 155);
+}
+
+/* --- Title and subtitle styling --- */
+.CC {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #d0b273;
+}
+
+.font {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* --- Table of contents and content styling --- */
+.GP {
+    font-size: 20px;
+    color: #000000;
+    line-height: 1.6;
+    padding: 10px;
+    text-align: left;
+    border: none;
+    background-color: transparent;
+    color: #b3841f;
+    font-weight: bold;
+}
+
+.GP:hover {
+    color: #000000;
+    cursor: pointer;
+}
+
+.content h2 {
+    padding: 10px;
+    margin: 0;
+}
+
+.content {
+    text-align: justify;
+    padding: 1px;
+}
+
+.content hr {
+    width: 90%;
+}
+
+/* --- Section styling --- */
+.editable-section {
+    padding: 5px;
+    text-align: justify;
+    line-height: 1.5;
+}
+.editable-section h2 {
+    text-align: left;
+    margin: 0;
+}
+
+/* --- Focused paragraph highlight (if needed for JS) --- */
+.editable-section p.focused {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+    background: white;
+    transition: outline 0.2s;
+    border-radius: 3px;
+}
+p{
+    text-align: justify;
+    margin: auto;
+    padding: 10px;
+}
+h2{
+    text-align: left;
+    padding: 10px;
+}

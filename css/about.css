@@ -1,0 +1,94 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    font-family: 'Quicksand', Arial, sans-serif;
+    animation: slideToRight 0.5s ease-in-out;
+    background-color: #fffbe6;
+}
+@keyframes slideToRight {
+    from {
+        transform: translateX(-100%); /* Start off-screen to the left */
+        opacity: 0; /* Start invisible */
+    }
+    to {
+        transform: translateX(0); /* End at the original position */
+        opacity: 1; /* Fully visible */
+    }
+}
+
+.about-header {
+    display: flex;
+    align-items: center;
+    background-color: #d0b273;
+    padding: 14px 0;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+    
+}
+.about-header h1 {
+    margin: 0 auto;
+    font-size: 27px;
+    letter-spacing: 1px;
+}
+.about-header .back {
+    background-color: #d0b273;
+    border: none;
+    font-size: 26px;
+}
+
+
+.aboutform i {
+    font-size: 30px;
+    margin-right: 10px;
+}
+h2 {
+    text-align: center;
+}
+hr {
+    width: 90%;
+}
+
+.aboutbhive {
+    text-align: center;
+    margin: 12px;
+}
+.aboutbhive h2, h4 {
+    margin-bottom: -5px;
+}
+.aboutbhive h4 {
+    color: #d0b273;
+}
+
+.bhivelogo {
+    width: 200px;
+    border-radius: 50%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+.aboutimg {
+    text-align: center;
+}
+.bhiveshare {
+    text-align: left;
+    padding: 10px;
+    margin-bottom: -25px;
+}
+.content {
+    text-align: justify;
+    padding: 10px;
+}
+.about-img {
+    width: 90%;
+}
+.bhivepict {
+    text-align: center;
+}
+
+.back {
+    background-color: #d0b273;
+    border: none;
+    font-size: 26px;
+}
+.back:hover, .logout:hover {
+    background-color: rgb(157, 155, 155);
+}

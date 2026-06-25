@@ -1,0 +1,182 @@
+body{
+font-family: 'Quicksand', Arial, sans-serif;
+margin: 0;
+background-color: #fffbe6;
+}
+
+.header {
+    background-color: #d0b273;
+    margin: 0;
+    padding: 14px 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+
+.header h1 {
+    margin: 0 auto; /* Center the title */
+    font-size: 26px;
+    letter-spacing: 1px;
+    padding: 5px;
+    
+}
+
+.header i {
+    margin-left: 5px;
+}
+
+.back {
+    position: absolute;
+    left: 10px;
+    top: 15px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.input-form {
+  margin: 0px 15px;
+}
+
+form{
+	justify-content: center;
+	text-align: center;
+	margin: 30px auto;
+	background-color: #d0b273;
+	border-radius: 10px;
+  max-width: 700px;
+  padding: 12px;
+}
+
+input{
+	width: 83%;
+	border-radius:10px;
+	border: none;
+  margin-top: 30px;
+  background-color: #fffbe6;
+	border: 2px solid #d0b273;
+  padding: 14px;
+	
+}
+
+h3{
+	font-size: 21px;
+}
+
+p{
+	font-size: 14px;
+	margin-top: 5px;
+
+}
+.input-form p {
+    margin-bottom: 0px;
+}
+.already{
+    padding-bottom: 10px;
+}
+
+.x-password, .x-confirmpassword, .x-email, .x-phone{
+color: red;
+display: none;
+margin-bottom: -20px;
+
+}
+
+hr {
+	margin: 20px;
+    border: 1px solid rgb(52, 52, 52);
+}
+
+input:hover{
+background-color: lightgray;
+color: black;
+
+}
+
+a{
+	font-weight: bold;
+	text-decoration: none;
+	color: black;
+}
+
+a:hover{
+	color: rgb(77, 77, 77);
+}
+
+#signup{
+	background-color: rgb(91, 161, 236);
+	color: black;
+	font-weight: bold;
+	cursor: pointer;
+	padding: 12px;
+	width: 88%;
+	border-radius: 10px;
+	border: none;
+    margin-top: 30px;
+}
+
+#signup:hover{
+	background-color: white;
+}
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4); /* Black background with opacity */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 400px;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+}
+
+
+#reg-eye, #reg-eye-confirm {
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+@media (min-width: 600px) {
+    #reg-eye, #reg-eye-confirm {
+    margin-right: 20px;
+}
+}
+
+@media (min-width: 700px) {
+    #reg-eye, #reg-eye-confirm {
+    margin-right: 35px;
+}
+}
+
+@media (min-width: 800px) {
+    #reg-eye, #reg-eye-confirm {
+    margin-right: 35px;
+}
+}

@@ -1,0 +1,42 @@
+.card-group {
+    display: block;
+    flex-direction: column;
+    width: 70px;
+    background: #fffbe6;
+    border-right: 2px solid #d0b273;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;      /* ✅ allows vertical scroll */
+    overscroll-behavior: contain;
+    scrollbar-width: thin; /* optional for clean scrollbar */
+    z-index: 900;          /* ensure visible above content */
+}
+
+.card-group .card {
+    border-radius: 15px;
+    background: none;
+    width: 60px;
+    padding-bottom: 20px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-icon {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border-radius: 15px;
+}
+
+.card-icon i {
+    font-size: 20px;
+    color: #d0b273;
+}
+

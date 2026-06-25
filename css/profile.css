@@ -1,0 +1,140 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Quicksand', Arial, sans-serif;
+    min-height: 100vh;
+    background-color: #fffbe6;
+    animation: slideToLeft 0.5s ease-in-out;
+}
+
+@keyframes slideToLeft {
+    from {
+        transform: translateX(100%); /* Start off-screen to the right */
+        opacity: 0; /* Start invisible */
+    }
+    to {
+        transform: translateX(0); /* End at the original position */
+        opacity: 1; /* Fully visible */
+    }
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    background-color: #d0b273;
+    padding: 12px 0;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+
+.profile-header h1 {
+    margin: 0 auto;
+    font-size: 26px;
+    color: #000;
+    letter-spacing: 1px;
+}
+
+.profile-header .back {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #000;
+}
+
+.profile-container {
+    max-width: 500px;
+    width: 85%;
+    margin: 48px auto 0 auto;
+    background-color: #fffbe6;
+    border: 2px solid #d0b273;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 20px 16px;
+    text-align: left;
+
+    
+}
+
+.profile-details p {
+    font-size: 1rem;
+    margin: 18px 0;
+    color: #333;
+    letter-spacing: 0.5px;
+    padding: 8px;
+    
+}
+
+.profile-details strong {
+    color: #000000;
+    font-weight: bold;
+}
+.remember {
+    text-align: center;
+    padding: 0 10px;
+}
+
+.change-username-btn {
+    background-color: #d0b273;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 28px;
+    font-size: 15px;
+    margin-top: 24px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 80%;
+    max-width: 255px;
+    text-align: center;
+}
+
+.change-password-btn {
+    background-color: #d0b273;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 15px;
+    margin-top: 24px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 80%;
+    max-width: 255px;
+}
+
+.change-password-btn:hover, .change-password-btn:focus {
+    background: #fffbe6;
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.15);
+    outline: none;
+    border: 2px solid #d0b273;
+}
+
+.footer-text {
+    text-align: center;
+    padding: 16px 0;
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #f9f9f9;
+    box-shadow: 0 -2px 8px rgba(25, 118, 210, 0.05);
+}
+

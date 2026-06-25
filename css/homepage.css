@@ -1,0 +1,207 @@
+* {
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+.search-bar {
+    padding: 8px;
+    margin: 10px;
+    border-radius: 10px;
+    border: 1px solid black;
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 16px;
+    background-color: #fffbe6;
+}
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+   
+}
+.search-icon {
+    position: absolute; /* Position the icon absolutely within the container */
+    right: 20px; /* Adjust the position to the right of the search bar */
+    top: 45%; /* Center vertically */
+    transform: translateY(-50%); /* Adjust for vertical centering */
+    z-index: 10; /* Bring the icon to the front */
+    cursor: pointer; /* Change the cursor to a pointer when hovering over the icon */
+    
+}
+.homebackground {
+    background: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+.viewmenu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px;
+    gap: 10px;
+    margin-bottom: -10px;
+    margin-top: -10px;
+}
+
+.viewmenu h4 {
+    margin: 0;
+    text-decoration: underline;
+}
+
+.tablebackground {
+    background-color: #d0b273;
+    padding: 10px;
+    width: 280px;
+    max-width: 320px;
+    border-radius: 10px;
+    margin: 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: auto;
+    min-height: 180px;
+    overflow: hidden;
+}
+
+.tablebackground img {
+    width: 70%;         /* Fill the card width */
+    max-width: 320px;    /* Don't exceed 320px */
+    border-radius: 16px;
+    margin: 12px 0;
+    object-fit: cover;
+    height: auto;
+}
+
+.table {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px 0px;
+    width: 100%;
+    padding: 10px 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    justify-items: center;
+}
+.tablebackground h1 {
+    font-size: 20px;
+    margin: 0;
+    padding: 5px;
+    text-align: center;
+    color: black;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+.home-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+    margin-left: auto;
+    padding: 0px;
+    border-radius: 10px;
+}
+.about {
+    background-color: #d0b273;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.about-img {
+    width: 90%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+    margin: 10px;
+    border-radius: 10px;
+    border: 1px solid black;
+    margin: 0 auto;
+    margin-bottom: 10px;
+}
+#hometitle {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    padding: 5px;
+    margin-bottom: 10px;
+    
+}
+#hometext {
+    font-size: 16px;
+    margin: 0 10px 10px 10px;
+    text-align: justify;
+    padding: 5px;
+}
+
+.order-now {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    border-radius: 10px;
+    border: none;
+    background-color: #d0b273;
+    font-weight: bold;
+}
+
+.suggestions-container {
+    position: absolute;
+    top: 50px;
+    background-color: rgb(231, 228, 228);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 90%;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+.dark-mode-toggle {
+    width: 60px;
+    height: 50px;
+    padding: 8px;
+    border-radius: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    
+}
+.dark-mode-toggle .fa-sun {
+    color: #f9be06;
+}
+.dark-mode-toggle .fa-moon {
+    color: #f9be06;
+}
+
+@media (min-width: 700px) {
+    .table {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 0px;
+        
+    }
+}
+
+@media (min-width: 1100px) {
+    .table {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px 0px;
+    }
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="icon" type="image/png" href="img/bhivelogo.jpg">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>CLIQ Sign Up</title>
+	
+	<link rel="stylesheet" href="css/signup.css">
+	<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+</head>
+<body>
+
+	<div class="header">
+            <button class="back" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i></button>
+            <h1>Sign Up<i class="fas fa-pen"></i></h1>
+    </div>
+
+	<div id="modal" class="modal">
+		<div class="modal-content">
+		  <span id="close-modal" class="close">&times;</span>
+		  <p id="modal-message"></p>
+		</div>
+	  </div>
+
+	<div class="input-form">
+
+	<form>	
+		<br>
+				<h3>Sign Up to get a CLIQ Account!</h3>
+
+                    <input type="text"  name="username" id="username" placeholder="Username..." required>
+                    
+                    <div style="position:relative;">
+  <input type="password" name="password" id="password" placeholder="Password..." required>
+  <span id="reg-eye" style="position:absolute;right:16px;top:30px;cursor:pointer;color:#888;font-size:18px;">
+    <i class="fas fa-eye"></i>
+  </span>
+</div>
+<p class="x-password"> Password must contain at least 8 characters, one uppercase, one lowercase, and one special character.</p>
+
+<div style="position:relative;">
+  <input type="password" name="cpassword" id="cpassword" placeholder="Confirm Password..." required>
+  <span id="reg-eye-confirm" style="position:absolute;right:16px;top:30px;cursor:pointer;color:#888;font-size:18px;">
+    <i class="fas fa-eye"></i>
+  </span>
+</div>
+<p class="x-confirmpassword"> Password do not match.</p>
+                   
+                    <input type="email"  name="email" id="email" placeholder="Email..." required>
+					<p class="x-email"> Email has already taken.</p>
+                   
+                    <input type="text" name="phone" id="phone" placeholder="Phone Number..." required>
+					<p class="x-phone"> Phone number must start with 09 and contain 11 digits.</p>
+
+
+                    <button type="button" id="signup">Sign Up</button>
+
+                    <hr>
+
+                  
+
+                    <p class="already">Already have an account? <a href="Login2.html">Login</a> here</p>
+		
+	</form>
+
+	</div>
+
+<!-- Classic Firebase SDKs (v8) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+
+<!-- Your config -->
+<script src="js/firebase-config.js"></script>
+
+              
+
+<script type="module" src="js/regdb.js" defer></script>
+                
+                    
+
+</body>
+</html>

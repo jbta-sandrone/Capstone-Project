@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="img/bhivelogo.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="css/profile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="profile-header">
+        <button class="back" onclick="window.location.href='admindashboard.html'"><i class="fas fa-arrow-left"></i></button>
+        <h1>Admin Profile <i class="fas fa-user-shield"></i></h1>
+    </div>
+    <div class="profile-container">
+        <div class="profile-details">
+            <p><strong>Username:</strong> <span id="profile-name">User</span></p>
+            <p><strong>Email:</strong> <span id="profile-email">User@email.com</span></p>
+            <p><strong>Phone Number:</strong> <span id="profile-phone">09123456789</span></p>
+        </div>
+        <button class="change-password-btn"><i class="fas fa-key"></i> Change Password</button>
+    </div>
+    <p class="remember"><strong>Note:</strong> Always remember your password to keep your account secure.</p>
+
+    <p class="footer-text">© 2025 BHIVE. All rights reserved.</p>
+
+
+<!-- Classic Firebase SDKs (v8) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+
+<!-- Your config -->
+<script src="js/firebase-config.js"></script>
+
+
+
+<script type="module" src="js/adminprofile.js"></script>
+
+</body>
+</html>

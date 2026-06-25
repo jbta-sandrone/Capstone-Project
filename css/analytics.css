@@ -1,0 +1,303 @@
+/* Container and headings */
+
+.report-header {
+    display: flex;
+    background-color: #d0b273;
+    padding: 3px;
+    margin-bottom: -50px;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+.report-header h1 {
+    margin: 0 auto;
+    padding: 14px;
+    font-size: 24px;
+    letter-spacing: 1px;
+}
+.report-header .back {
+    position: absolute;
+    left: 10px;
+    top: 15px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Main content spacing */
+html, body {
+    width: 100vw;
+    max-width: 100vw;
+    overflow-x: hidden;
+    font-family: 'Quicksand', Arial, sans-serif;
+    margin: 0;
+}
+* {
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+
+body {
+    animation: slideToLeft 0.5s ease-in-out;
+    background-color: #fffbe6;
+}
+
+@keyframes slideToLeft {
+    from {
+        transform: translateX(100%); /* Start off-screen to the right */
+        opacity: 0; /* Start invisible */
+    }
+    to {
+        transform: translateX(0); /* End at the original position */
+        opacity: 1; /* Fully visible */
+    }
+}
+
+
+.report-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 24px auto 0 auto;
+    max-width: 800px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#report-content {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 800px;
+    min-width: 0;
+    overflow-x: auto;
+    margin: 32px auto 0 auto;
+    background-color: #fffbe6;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 32px 24px;
+    min-height: 320px;
+}
+
+/* Headings */
+#report-content h3 {
+    color: #000000;
+    font-size: 1.5rem;
+    margin-bottom: 18px;
+}
+
+/* Table styles */
+#report-content table {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    display: table; /* Override display:block for centering */
+    width: 100%;
+    max-width: 600px;
+}
+
+#report-content th, #report-content td {
+    padding: 12px 18px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    font-size: 1rem;
+}
+
+#report-content th {
+    background: #d0b273;
+    color: #000000;
+    font-weight: 600;
+}
+
+#report-content tr:nth-child(even) td {
+    background: #fffbe6;
+}
+
+/* Buttons */
+.report-buttons button {
+    background: #d0b273;
+    color: #000000;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 1rem;
+    margin: 8px 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.buttons:hover, button:focus {
+    background: #fffbe6;
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.15);
+    outline: none;
+    border: 2px solid #d0b273;
+}
+
+/* Analytics list */
+#report-content ul {
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+    max-width: 400px;
+    text-align: left;
+}
+
+#report-content ul li {
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 1.05rem;
+}
+
+#report-content ul li:last-child {
+    border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    #report-content {
+        padding: 16px 6px;
+        max-width: 100vw;
+    }
+    #report-content table {
+        font-size: 0.95rem;
+        padding: 0;
+    }
+    #report-content th, #report-content td {
+        padding: 6px 2px;
+        font-size: 0.95rem;
+        word-break: break-word;
+    }
+}
+
+@media (max-width: 600px) {
+    .report-buttons {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+        max-width: 100vw;
+        padding: 0 4px;
+    }
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 2000; /* Higher z-index to bring it in front of other elements */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    z-index: 2001; /* Ensure the modal content is above the modal background */
+}
+
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.modal-btn.confirm {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.modal-btn.cancel {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin: 24px auto 0 auto;
+    max-width: 1200px;
+    justify-items: center;
+}
+.calendar-card {
+    background: #fffbe6;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 18px 16px 14px 16px;
+    min-width: 200px;
+    max-width: 260px;
+    text-align: left;
+    position: relative;
+    font-family: 'Quicksand', Arial, sans-serif;
+    transition: box-shadow 0.2s, border 0.2s, background 0.2s;
+    cursor: pointer;
+}
+
+.calendar-card:hover, .calendar-card.selected {
+    box-shadow: 0 4px 24px rgba(25, 118, 210, 0.18);
+    border: 2px solid #d0b273;
+    background: #f5faff;
+}
+.calendar-card-header {
+    font-size: 1.15rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #bb8b23;
+    
+}
+
+/* Responsive Chart Container */
+#card-items-chart-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 32px auto 0 auto;
+    background: #fffbe6;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 24px 18px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Make canvas responsive */
+#cardItemsChart,
+#popularItemChart,
+#paymentUsageChart,
+#orderTypeChart {
+    display: block;
+    max-width: 100%;
+    height: auto !important;
+    margin: 24px auto;
+}
+
+
+#weekly-past-form-overlay,
+#monthly-past-form-overlay {
+  height: 100vh !important;
+  overflow: auto !important;
+}
+
+#weekly-past-form-overlay > div,
+#monthly-past-form-overlay > div {
+  max-height: 80vh !important;
+  overflow-y: auto !important;
+}
+

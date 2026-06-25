@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="img/bhivelogo.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Receipt</title>
+    <link rel="stylesheet" href="css/receipt.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <h1>Order Completed</h1>
+    <p>Thank you for ordering!</p>
+    <p>Your order number is: <strong>{{ order_number }}</strong></p>
+
+    <button class="back" onclick="window.location.href='notification.html'"><i class="fas fa-arrow-left"></i> See Order Status</button>
+    
+<!-- Classic Firebase SDKs (v8) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+
+<!-- Your config -->
+<script src="js/firebase-config.js"></script>
+
+
+
+
+    <script>
+// Get orderID from URL and display it
+const urlParams = new URLSearchParams(window.location.search);
+const orderID = urlParams.get('orderID');
+const orderNumberSpan = document.querySelector('strong');
+if (orderID) {
+    orderNumberSpan.textContent = orderID;
+} else {
+    // Fallback: generate a random 4-digit number
+    orderNumberSpan.textContent = Math.floor(1000 + Math.random() * 9000);
+}
+</script>
+
+</body>
+</html>

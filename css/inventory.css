@@ -1,0 +1,245 @@
+body {
+    font-family: 'Quicksand', Arial, sans-serif;
+    margin: 0;
+    background-color: #fffbe6;
+    animation: slideToLeft 0.5s ease-in-out;
+}
+
+@keyframes slideToLeft {
+    from {
+        transform: translateX(100%); /* Start off-screen to the right */
+        opacity: 0; /* Start invisible */
+    }
+    to {
+        transform: translateX(0); /* End at the original position */
+        opacity: 1; /* Fully visible */
+    }
+}
+
+.inventory-header {
+    display: flex;
+    background-color: #d0b273;
+    
+}
+.inventory-header h1 {
+    margin: 0 auto;
+    font-size: 30px;
+    padding: 14px;
+}
+.inventory-header .back {
+    position: absolute;
+    top: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+.inventory-header i {
+    margin-left: 10px;
+}
+
+.inventory-list #items {
+    padding: 1px 10px 10px;
+    margin: 12px auto;
+    border-radius: 15px;
+    background-color: #fffbe6;
+    border: 2px solid #d0b273;
+    width: 90%;
+    max-width: 700px;
+}
+
+.inventory-list #items i {
+    margin-top: 5px;
+}
+
+
+.fast-form-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fast-form-popup {
+    background: #fff;
+    padding: 2em 2em 1em 2em;
+    border-radius: 10px;
+    min-width: 300px;
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+.fast-form-popup h2 {
+    margin-top: 0;
+}
+.fast-form-popup label {
+    display: block;
+    margin: 10px 0 5px 0;
+}
+.fast-form-popup input, #item-location {
+    width: 100%;
+    padding: 7px;
+    margin-bottom: 10px;
+}
+
+.close-fast-form {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+.submit-fast-form {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.main-content {
+    margin-left: 70px;
+    /* other styles */
+}
+
+#add-size-btn {
+    padding: 6px;
+}
+
+#size-price-container select {
+    padding: 8px;
+}
+#size-price-container button {
+    margin-top: 1px;
+    margin-bottom: 10px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+
+.add-new-item {
+    display: block;
+    padding: 12px;
+    margin: 10px auto;
+    background-color: #d0b273;
+    font-weight: bold;
+    border-radius: 15px;
+    border: none;
+    width: 45%;
+    max-width: 700px;
+    font-size: 18px;
+    font-family: 'Quicksand', Arial, sans-serif;
+    text-align: center;
+}
+
+.admin-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #c1c0c0;
+}
+
+.admin-item-row span {
+    flex: 1;
+    text-align: left;
+}
+
+.admin-icons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    align-items: center;
+    min-width: 90px;
+}
+
+.admin-icons i {
+    cursor: pointer;
+    font-size: 1.1em;
+    color: #555;
+    transition: color 0.2s;
+}
+
+.admin-icons i:hover {
+    color: #000;
+}
+
+.admin-icons .edit-icon {
+    color: #4CAF50; /* Blue for edit */
+}
+.admin-icons .delete-icon {
+    color: #f44336; /* Red for delete */
+}
+.admin-icons .disable-icon {
+    color: #ff9800; /* Orange for disable */
+}
+.admin-icons .fa-power-off {
+    color: #008CBA; /* Teal for enable */
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 2000; /* Higher z-index to bring it in front of other elements */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    z-index: 2001; /* Ensure the modal content is above the modal background */
+}
+
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.modal-btn.confirm {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.modal-btn.cancel {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.success {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;
+    background-color: #4caf50;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    display: none;
+    font-size: 16px;
+    width: 70%;
+}
+
