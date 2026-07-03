@@ -69,6 +69,7 @@ categorySelect.addEventListener('change', function() {
         // Hide item price
         itemPriceLabel.style.display = 'none';
         itemPriceInput.style.display = 'none';
+        itemPriceInput.removeAttribute('required');
         // Always clear and add a new row for the selected category
         sizePriceContainer.innerHTML = '';
         sizePriceContainer.appendChild(createSizePriceRow());
@@ -88,6 +89,7 @@ categorySelect.addEventListener('change', function() {
         sizePriceContainer.innerHTML = '';
         itemPriceLabel.style.display = '';
         itemPriceInput.style.display = '';
+        itemPriceInput.setAttribute('required', 'required');
     } else {
         sizePriceContainer.style.display = 'none';
         addSizeBtn.style.display = 'none';
@@ -95,6 +97,7 @@ categorySelect.addEventListener('change', function() {
         // Show item price
         itemPriceLabel.style.display = '';
         itemPriceInput.style.display = '';
+        itemPriceInput.setAttribute('required', 'required');
     }
 });
 

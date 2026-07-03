@@ -119,9 +119,14 @@ async function saveToHistory(orderData, userUid) {
     total: total.toFixed(2) // store same formatted total as shown in notification
   };
 
-  await set(newHistoryEntry, historyData);
-  if (orderData.notifKey) {
-    await update(ref(database, `users/${userUid}/notification/${orderData.notifKey}`), { historySaved: true });
+  try {
+    await set(newHistoryEntry, historyData);
+    if (orderData.notifKey) {
+      await update(ref(database, `users/${userUid}/notification/${orderData.notifKey}`), { historySaved: true });
+    }
+  } catch (error) {
+    console.error(`Firebase write failed: save order history at "users/${userUid}/history"`, error);
+    throw error;
   }
 }
 
@@ -143,42 +148,46 @@ async function moveToOrderQueue(orderData, notifKey, userUid) {
   if (orderData._movedToQueue || orderData.done || orderData.queued) return;
   orderData._movedToQueue = true;
 
-  // Check for existing orderID in orderqueue
-  const queueRef = ref(database, 'orderqueue');
-  const snapshot = await get(queueRef);
-  let alreadyExists = false;
-  if (snapshot.exists()) {
-    const queueData = snapshot.val();
-    Object.values(queueData).forEach(q => {
-      if (q.orderID === orderData.orderID) {
-        alreadyExists = true;
-      }
-    });
-  }
-  if (alreadyExists) {
-    // Don't push duplicate
-    await update(ref(database, `users/${userUid}/notification/${notifKey}`), { queued: true });
-    await saveToHistory({ ...orderData, notifKey }, userUid);
-    return;
-  }
+  try {
+    // Check for existing orderID in orderqueue
+    const queueRef = ref(database, 'orderqueue');
+    const snapshot = await get(queueRef);
+    let alreadyExists = false;
+    if (snapshot.exists()) {
+      const queueData = snapshot.val();
+      Object.values(queueData).forEach(q => {
+        if (q.orderID === orderData.orderID) {
+          alreadyExists = true;
+        }
+      });
+    }
+    if (alreadyExists) {
+      // Don't push duplicate
+      await update(ref(database, `users/${userUid}/notification/${notifKey}`), { queued: true });
+      await saveToHistory({ ...orderData, notifKey }, userUid);
+      return;
+    }
 
-  // Proceed as before
-  const dbRef = ref(database);
-  const userSnap = await get(child(dbRef, `users/${userUid}`));
-  if (userSnap.exists()) {
-    const userData = userSnap.val();
-    const queueData = {
-      ...orderData,
-      user: {
-        name: userData.username || "",
-        phone: userData.phone || "",
-        email: userData.email || "",
-        uid: userUid
-      }
-    };
-    await set(push(queueRef), queueData);
-    await update(ref(database, `users/${userUid}/notification/${notifKey}`), { queued: true });
-    await saveToHistory({ ...orderData, notifKey }, userUid);
+    // Proceed as before
+    const dbRef = ref(database);
+    const userSnap = await get(child(dbRef, `users/${userUid}`));
+    if (userSnap.exists()) {
+      const userData = userSnap.val();
+      const queueData = {
+        ...orderData,
+        user: {
+          name: userData.username || "",
+          phone: userData.phone || "",
+          email: userData.email || "",
+          uid: userUid
+        }
+      };
+      await set(push(queueRef), queueData);
+      await update(ref(database, `users/${userUid}/notification/${notifKey}`), { queued: true });
+      await saveToHistory({ ...orderData, notifKey }, userUid);
+    }
+  } catch (error) {
+    console.error(`Firebase write failed: move order to queue at "orderqueue" or "users/${userUid}/notification/${notifKey}"`, error);
   }
 }
 
@@ -440,7 +449,7 @@ async function displayNotifications() {
 
         const icon = document.createElement('i');
         if (notif.status === "completed" || notif.message === "Your order has been completed") {
-          icon.className = "fas fa-check-circle status-icon";
+          icon.className = "fas fa-check-circle status-icon1";
           icon.style.color = "#28a745";
         } else {
           icon.className = "status-icon status-spinner";
@@ -487,8 +496,23 @@ async function displayNotifications() {
             cancelModalBtn.onclick = null;
 
             confirmBtn.onclick = async () => {
-              await remove(ref(database, `users/${userUid}/notification/${key}`));
-              modal.style.display = "none";
+              const authUser = await waitForCurrentUser();
+              if (!authUser) {
+                console.warn(`Firebase write blocked: remove received notification at "users/${userUid}/notification/${key}" requires an authenticated Firebase user.`);
+                modal.style.display = "none";
+                return;
+              }
+
+              const authenticatedUid = authUser.uid;
+              localStorage.setItem("userUid", authenticatedUid);
+
+              try {
+                await remove(ref(database, `users/${authenticatedUid}/notification/${key}`));
+              } catch (error) {
+                console.error(`Firebase write failed: remove received notification at "users/${authenticatedUid}/notification/${key}"`, error);
+              } finally {
+                modal.style.display = "none";
+              }
             };
             cancelModalBtn.onclick = () => {
               modal.style.display = "none";

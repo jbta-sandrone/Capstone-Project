@@ -1,5 +1,6 @@
 // Import Firebase modules
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 import { getDatabase, ref, onValue, get, remove, push } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // Firebase configuration
@@ -16,12 +17,58 @@ const firebaseConfig = {
 // Initialize Firebase only if it hasn't been initialized already
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const database = getDatabase(app);
+const auth = getAuth(app);
+
+function waitForCurrentUser() {
+    if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
+    return new Promise((resolve) => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            unsubscribe();
+            resolve(user);
+        });
+    });
+}
+
+async function getAuthenticatedUidForWrite(operationLabel, databasePath) {
+    const user = await waitForCurrentUser();
+    if (!user) {
+        console.warn(`Firebase write blocked: ${operationLabel} at "${databasePath}" requires an authenticated Firebase user.`);
+        return null;
+    }
+
+    localStorage.setItem("userUid", user.uid);
+    return user.uid;
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function renderHistoryState(iconClass, title, message) {
+    return `
+        <div class="history-empty">
+            <span class="history-empty__icon"><i class="${iconClass}"></i></span>
+            <strong>${escapeHtml(title)}</strong>
+            <p>${escapeHtml(message)}</p>
+        </div>
+    `;
+}
 
 // Fetch and display history data
 function fetchHistory() {
     const userUid = localStorage.getItem('userUid');
     if (!userUid) {
-        document.getElementById('history-order').innerHTML = '<p>You are not logged in.</p>';
+        document.getElementById('history-order').innerHTML = renderHistoryState(
+            "fas fa-user-lock",
+            "You are not logged in.",
+            "Login to view your saved cafe orders."
+        );
         // Hide delete all button if not logged in
         const deleteAllBtn = document.getElementById('delete-all-history');
         if (deleteAllBtn) deleteAllBtn.style.display = 'none';
@@ -54,17 +101,23 @@ Object.entries(historyData).forEach(([key, entry]) => {
 Object.values(uniqueOrders).forEach(({ key, entry }) => {
     const orderID = entry.orderID || 'Unknown ID';
     const date = entry.date || 'Unknown Date';
+    const statusLabel = entry.status || 'Saved order';
 
     const historyItem = document.createElement('div');
     historyItem.classList.add('history-item');
 
     historyItem.innerHTML = `
-        <p><strong>Order ID:</strong> ${orderID}</p>
-        <p id="history-date"><strong>Date:</strong> ${date}</p>
-        <button class="see-details-btn" data-key="${key}">See Details</button>
-        <button class="delete-btn" data-key="${key}">
-            <i class="fa fa-trash"></i>
-        </button>
+        <div class="history-item__main">
+            <span class="history-status">${escapeHtml(statusLabel)}</span>
+            <p><strong>Order ID</strong> ${escapeHtml(orderID)}</p>
+            <p id="history-date"><i class="far fa-calendar"></i> ${escapeHtml(date)}</p>
+        </div>
+        <div class="history-item__actions">
+            <button class="see-details-btn" data-key="${escapeHtml(key)}">See Details</button>
+            <button class="delete-btn" data-key="${escapeHtml(key)}" aria-label="Delete order ${escapeHtml(orderID)}">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
         <hr>
     `;
 
@@ -84,8 +137,10 @@ Object.values(uniqueOrders).forEach(({ key, entry }) => {
                 if (event.target.closest('.delete-btn')) {
                     const deleteBtn = event.target.closest('.delete-btn');
                     const key = deleteBtn.getAttribute('data-key');
-                    showModal("Are you sure you want to delete this record?", () => {
-                        const entryRef = ref(database, `users/${userUid}/history/${key}`);
+                    showModal("Are you sure you want to delete this record?", async () => {
+                        const authenticatedUid = await getAuthenticatedUidForWrite("delete history record", `users/${userUid}/history/${key}`);
+                        if (!authenticatedUid) return;
+                        const entryRef = ref(database, `users/${authenticatedUid}/history/${key}`);
                         remove(entryRef)
                             .then(() => {
                                 fetchHistory();
@@ -97,12 +152,20 @@ Object.values(uniqueOrders).forEach(({ key, entry }) => {
                 }
             });
         } else {
-            historyOrderElement.innerHTML = '<p>No history data found.</p>';
+            historyOrderElement.innerHTML = renderHistoryState(
+                "fas fa-receipt",
+                "No history data found.",
+                "Completed cafe orders will appear here."
+            );
             // Hide delete all button if no data
             if (deleteAllBtn) deleteAllBtn.style.display = 'none';
         }
     }, (error) => {
-        historyOrderElement.innerHTML = '<p>Error fetching history data.</p>';
+        historyOrderElement.innerHTML = renderHistoryState(
+            "fas fa-triangle-exclamation",
+            "Error fetching history data.",
+            "Please try opening your history again in a moment."
+        );
         // Hide delete all button on error
         if (deleteAllBtn) deleteAllBtn.style.display = 'none';
         console.error("❌ Error fetching history data:", error);
@@ -118,7 +181,11 @@ function showDetails(key, userUid) {
     get(orderRef)
         .then((snapshot) => {
             if (!snapshot.exists()) {
-                historyDetailsElement.innerHTML = '<p>No order details found.</p>';
+                historyDetailsElement.innerHTML = renderHistoryState(
+                    "fas fa-magnifying-glass",
+                    "No order details found.",
+                    "This order record no longer has receipt details."
+                );
                 return;
             }
 
@@ -149,23 +216,24 @@ function showDetails(key, userUid) {
                 <button id="back-to-history">
                     <i class="fa fa-arrow-left"></i>
                 </button>
-                <div style="text-align:center; margin-bottom:12px;">
-                  <h2 style="margin:0; font-size:1.4em;">Order Details</h2>
-                  <div style="font-size:14px; color:#555;">${formattedDate}</div>
-                  <div style="margin-top:6px; font-size:13px; color:#666;">Order ID: <strong>${orderData.orderID || ""}</strong></div>
+                <div class="history-details__header">
+                  <span class="history-status">Receipt</span>
+                  <h2>Order Details</h2>
+                  <div>${escapeHtml(formattedDate)}</div>
+                  <div>Order ID: <strong>${escapeHtml(orderData.orderID || "")}</strong></div>
                 </div>
 
-                <div style="margin-bottom:10px;">
-                  <strong>Items:</strong>
-                  <table style="width:100%; border-collapse:collapse; margin-top:8px; font-size:14px;">
+                <div class="history-details__table-wrap">
+                  <strong>Items</strong>
+                  <table class="history-details__table">
                     <thead>
-                      <tr style="background:#f5e9c6;">
-                        <th style="text-align:left; padding:6px;">Item</th>
-                        <th style="text-align:center; padding:6px;">Qty</th>
-                        <th style="text-align:center; padding:6px;">Size</th>
-                        <th style="text-align:center; padding:6px;">Sugar</th>
-                        <th style="text-align:center; padding:6px;">Add-Ons</th>
-                        <th style="text-align:right; padding:6px;">Price</th>
+                      <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Size</th>
+                        <th>Sugar</th>
+                        <th>Add-Ons</th>
+                        <th>Price</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -178,24 +246,24 @@ function showDetails(key, userUid) {
                               const sugar = item.sugar || "";
                               const addons = item.addons || item.addon || "";
                               return `<tr>
-                                <td style="padding:6px;">${item.item || ""}</td>
-                                <td style="text-align:center; padding:6px;">${qty}</td>
-                                <td style="text-align:center; padding:6px;">${sizeHTML}</td>
-                                <td style="text-align:center; padding:6px;">${sugar}</td>
-                                <td style="text-align:center; padding:6px;">${addons}</td>
-                                <td style="text-align:right; padding:6px;">${itemPrice}</td>
+                                <td>${escapeHtml(item.item || "")}</td>
+                                <td>${escapeHtml(qty)}</td>
+                                <td>${escapeHtml(sizeHTML)}</td>
+                                <td>${escapeHtml(sugar)}</td>
+                                <td>${escapeHtml(addons)}</td>
+                                <td>${escapeHtml(itemPrice)}</td>
                               </tr>`;
                             }).join('')
-                          : `<tr><td colspan="6" style="padding:6px;">No items found.</td></tr>`
+                          : `<tr><td colspan="6">No items found.</td></tr>`
                       }
                     </tbody>
                   </table>
                 </div>
 
-                <p id="total" style="text-align:right; font-weight:bold; margin-top:10px;">Total Price: P${totalPrice.toFixed(2)}</p>
+                <p id="total">Total Price: P${totalPrice.toFixed(2)}</p>
 
-                <div style="margin-top:12px; text-align:center;">
-                  <button id="order-again" style="padding:10px 14px; border-radius:6px; border:none; background:#1976d2; color:#fff; cursor:pointer;">Order Again</button>
+                <div class="history-details__actions">
+                  <button id="order-again">Order Again</button>
                 </div>
             `;
 
@@ -219,9 +287,10 @@ function showDetails(key, userUid) {
             // order again
             const orderAgainBtn = document.getElementById('order-again');
             if (orderAgainBtn) {
-                orderAgainBtn.addEventListener('click', () => {
+                orderAgainBtn.addEventListener('click', async () => {
                     if (orderData.orders) {
-                        const uid = localStorage.getItem('userUid');
+                        const uid = await getAuthenticatedUidForWrite("order again add to cart", "users/{uid}/ordercart");
+                        if (!uid) return;
                         const orderRef = ref(database, `users/${uid}/ordercart`);
                         const itemsToPush = Object.values(orderData.orders);
                         Promise.all(itemsToPush.map(item => push(orderRef, item)))
@@ -231,14 +300,16 @@ function showDetails(key, userUid) {
                                     successDiv.style.display = 'block';
                                     setTimeout(() => {
                                         successDiv.style.display = 'none';
-                                        window.location.href = 'cart.html';
+                                        localStorage.setItem('cliqDashboardOpen', 'cart');
+                                        window.location.href = 'dashboard.html?open=cart';
                                     }, 1200);
                                 } else {
-                                    window.location.href = 'cart.html';
+                                    localStorage.setItem('cliqDashboardOpen', 'cart');
+                                    window.location.href = 'dashboard.html?open=cart';
                                 }
                             })
                             .catch((error) => {
-                                console.error("Error adding items to cart:", error);
+                                console.error(`Firebase write failed: order again add to cart at "users/${uid}/ordercart"`, error);
                             });
                     }
                 });
@@ -246,7 +317,11 @@ function showDetails(key, userUid) {
         })
         .catch((error) => {
             console.error("Error fetching order details:", error);
-            historyDetailsElement.innerHTML = '<p>Error fetching order details.</p>';
+            historyDetailsElement.innerHTML = renderHistoryState(
+                "fas fa-triangle-exclamation",
+                "Error fetching order details.",
+                "Please try opening this receipt again."
+            );
         });
 }
 
@@ -281,8 +356,10 @@ document.addEventListener('DOMContentLoaded', () => {
     deleteAllBtn.addEventListener('click', () => {
       const userUid = localStorage.getItem('userUid');
       if (!userUid) return;
-      showModal("Are you sure you want to delete ALL history records?", () => {
-        const historyRef = ref(database, `users/${userUid}/history`);
+      showModal("Are you sure you want to delete ALL history records?", async () => {
+        const authenticatedUid = await getAuthenticatedUidForWrite("delete all history records", `users/${userUid}/history`);
+        if (!authenticatedUid) return;
+        const historyRef = ref(database, `users/${authenticatedUid}/history`);
         remove(historyRef)
           .then(() => {
             fetchHistory();

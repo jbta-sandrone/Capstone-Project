@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getDatabase, ref, onValue, remove, update, runTransaction } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 // Firebase config (reuse your config)
@@ -14,6 +15,34 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
+
+function waitForCurrentUser() {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
+
+async function runAuthedWrite(operationLabel, databasePath, writeOperation) {
+  const user = await waitForCurrentUser();
+  if (!user) {
+    console.warn(`Firebase write blocked: ${operationLabel} at "${databasePath}" requires an authenticated Firebase user.`);
+    return false;
+  }
+
+  try {
+    await writeOperation(user);
+    return true;
+  } catch (error) {
+    console.error(`Firebase write failed: ${operationLabel} at "${databasePath}"`, error);
+    return false;
+  }
+}
 
 // --- Modal logic for viewing images closely ---
 const imageModal = document.getElementById('image-modal');
@@ -61,7 +90,7 @@ function displayOrderQueue() {
   queueDiv.innerHTML = "";
 
   const queueRef = ref(database, 'orderqueue');
-  onValue(queueRef, (snapshot) => {
+  onValue(queueRef, async (snapshot) => {
     // --- Realtime duplicate removal ---
     const data = snapshot.val();
     if (data) {
@@ -78,7 +107,9 @@ function displayOrderQueue() {
       Object.values(orderIDMap).forEach(keys => {
         if (keys.length > 1) {
           keys.slice(1).forEach(key => {
-            remove(ref(database, `orderqueue/${key}`));
+            runAuthedWrite("remove duplicate queued order", `orderqueue/${key}`, () => {
+              return remove(ref(database, `orderqueue/${key}`));
+            });
           });
         }
       });
@@ -209,6 +240,7 @@ function displayOrderQueue() {
           cancelModalBtn.onclick = null;
 
           confirmBtn.onclick = async () => {
+            await runAuthedWrite("complete queued order", `orderqueue/${queueKey} and analytics sales nodes`, async () => {
             // Remove from orderqueue
             await remove(ref(database, `orderqueue/${queueKey}`));
             // Update notification for this user and orderID
@@ -223,6 +255,8 @@ function displayOrderQueue() {
                         message: "Your order has been completed",
                         status: "completed",
                         done: true
+                      }).catch((error) => {
+                        console.error(`Firebase write failed: update completed notification at "users/${order.user.uid}/notification/${notifKey}"`, error);
                       });
                     }
                   });
@@ -271,7 +305,9 @@ function displayOrderQueue() {
         Object.entries(newWeeklyData.items).forEach(([name, obj]) => {
             obj.percentage = totalQty > 0 ? Math.round((obj.quantity / totalQty) * 100) : 0;
         });
-        update(weeklyRef, newWeeklyData);
+        update(weeklyRef, newWeeklyData).catch((error) => {
+          console.error(`Firebase write failed: update weekly sales at "weekly/${weekRange}"`, error);
+        });
     }, { onlyOnce: true });
 
     // --- Monthly Sales & Items Update ---
@@ -304,13 +340,15 @@ const monthRef = ref(database, `monthly/${monthKey}`);
         Object.entries(newMonthlyData.items).forEach(([name, obj]) => {
             obj.percentage = totalQty > 0 ? Math.round((obj.quantity / totalQty) * 100) : 0;
         });
-        update(monthRef, newMonthlyData);
+        update(monthRef, newMonthlyData).catch((error) => {
+          console.error(`Firebase write failed: update monthly sales at "monthly/${monthKey}"`, error);
+        });
     }, { onlyOnce: true });
 
             // --- Yearly Sales Update ---
             const year = getYear(today); // e.g., "2025"
             const yearRef = ref(database, `yearly/${year}`);
-            runTransaction(yearRef, (currentData) => {
+            await runTransaction(yearRef, (currentData) => {
               if (currentData === null) {
                 return {
                   totalOrders: 1,
@@ -322,6 +360,8 @@ const monthRef = ref(database, `monthly/${monthKey}`);
                   totalSales: (currentData.totalSales || 0) + orderTotal
                 };
               }
+            }).catch((error) => {
+              console.error(`Firebase write failed: update yearly sales at "yearly/${year}"`, error);
             });
 
             // --- Analytics Item Popularity Update ---
@@ -350,7 +390,9 @@ const monthRef = ref(database, `monthly/${monthKey}`);
               });
 
               // Step 4: Save back to analytics/items node
-              update(ref(database, 'analytics/items'), analyticsData);
+              update(ref(database, 'analytics/items'), analyticsData).catch((error) => {
+                console.error('Firebase write failed: update item analytics at "analytics/items"', error);
+              });
             }, { onlyOnce: true });
 
             // --- GCash and Cash Usage Rate Update ---
@@ -376,7 +418,9 @@ const monthRef = ref(database, `monthly/${monthKey}`);
               usageData.cash.rate = totalUsage > 0 ? Math.round((usageData.cash.usage / totalUsage) * 100) : 0;
 
               // Save back to usagerate node
-              update(ref(database, 'usagerate'), usageData);
+              update(ref(database, 'usagerate'), usageData).catch((error) => {
+                console.error('Firebase write failed: update payment usage at "usagerate"', error);
+              });
             }, { onlyOnce: true });
 
             // --- Order Type Percentage Update ---
@@ -405,10 +449,13 @@ const monthRef = ref(database, `monthly/${monthKey}`);
               });
 
               // Save back to otpercentage node
-              update(ref(database, 'otpercentage'), otData);
+              update(ref(database, 'otpercentage'), otData).catch((error) => {
+                console.error('Firebase write failed: update order type analytics at "otpercentage"', error);
+              });
             }, { onlyOnce: true });
 
             modal.style.display = "none";
+            });
           };
 
           cancelModalBtn.onclick = () => {

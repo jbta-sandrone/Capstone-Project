@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getDatabase, ref, onValue, remove, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 // Firebase config (reuse your config)
@@ -14,6 +15,37 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
+
+function waitForCurrentUser() {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
+
+async function runAuthedWrite(operationLabel, databasePath, writeOperation) {
+  const user = await waitForCurrentUser();
+  if (!user) {
+    const message = `Firebase write blocked: ${operationLabel} at "${databasePath}" requires an authenticated Firebase user.`;
+    console.warn(message);
+    showErrorModal("Please log in with an authenticated admin account before changing reports.");
+    return false;
+  }
+
+  try {
+    await writeOperation(user);
+    return true;
+  } catch (error) {
+    console.error(`Firebase write failed: ${operationLabel} at "${databasePath}"`, error);
+    showErrorModal("Report update failed: " + (error.message || "Permission denied."));
+    return false;
+  }
+}
 
 // Helper for confirmation modal
 function showArchiveModal(message, onConfirm) {
@@ -354,8 +386,9 @@ function renderWeeklyReport() {
         card.querySelector('.archive-btn').onclick = () => {
           showArchiveModal(`Archive week "${week}"? You can restore it from weekly archive records.`, () => {
             const archiveRef = ref(database, `archive/weekly/${week}`);
-            set(archiveRef, info).then(() => {
-              remove(ref(database, `weekly/${week}`));
+            runAuthedWrite("archive weekly report", `archive/weekly/${week} and weekly/${week}`, async () => {
+              await set(archiveRef, info);
+              await remove(ref(database, `weekly/${week}`));
             });
           });
         };
@@ -498,8 +531,9 @@ function renderMonthlyReport() {
           e.stopPropagation();
           showArchiveModal(`Archive month "${month}"? You can restore it from monthly archive records.`, () => {
             const archiveRef = ref(database, `archive/monthly/${month}`);
-            set(archiveRef, info).then(() => {
-              remove(ref(database, `monthly/${month}`));
+            runAuthedWrite("archive monthly report", `archive/monthly/${month} and monthly/${month}`, async () => {
+              await set(archiveRef, info);
+              await remove(ref(database, `monthly/${month}`));
             });
           });
         };
@@ -617,8 +651,9 @@ function renderAnnualReport() {
         card.querySelector('.archive-btn').onclick = () => {
           showArchiveModal(`Archive year "${year}"? You can restore it from annual archive records.`, () => {
             const archiveRef = ref(database, `archive/yearly/${year}`);
-            set(archiveRef, info).then(() => {
-              remove(ref(database, `yearly/${year}`));
+            runAuthedWrite("archive annual report", `archive/yearly/${year} and yearly/${year}`, async () => {
+              await set(archiveRef, info);
+              await remove(ref(database, `yearly/${year}`));
             });
           });
         };
@@ -636,16 +671,32 @@ function renderAnnualReport() {
 
 function renderAnalyticsReport() {
   const reportContent = document.getElementById('report-content');
-  reportContent.innerHTML = `<h3>Analytics Report</h3>
-    <ul id="analytics-list" style="display:inline-block; text-align:left;">
-      <li><strong>Most Popular Item:</strong> <span id="popular-item">Loading...</span></li>
-      <li><strong>GCash Usage Rate:</strong> <span id="gcash-rate">Loading...</span></li>
-      <li><strong>Cash Usage Rate:</strong> <span id="cash-rate">Loading...</span></li>
-      <li><strong>Total Number of Users:</strong> <span id="user-count">Loading...</span></li>
+  reportContent.innerHTML = `<div class="report-section-heading">
+      <div>
+        <p class="reports-eyebrow">Live Analytics</p>
+        <h3>Analytics Report</h3>
+      </div>
+    </div>
+    <ul id="analytics-list" class="analytics-kpi-grid">
+      <li><span>Most Popular Item</span><strong id="popular-item">Loading...</strong></li>
+      <li><span>GCash Usage Rate</span><strong id="gcash-rate">Loading...</strong></li>
+      <li><span>Cash Usage Rate</span><strong id="cash-rate">Loading...</strong></li>
+      <li><span>Total Users</span><strong id="user-count">Loading...</strong></li>
     </ul>
-    <canvas id="popularItemChart" width="400" height="300" style="margin:24px auto;"></canvas>
-    <canvas id="paymentUsageChart" width="400" height="300" style="margin:24px auto;"></canvas>
-    <canvas id="orderTypeChart" width="400" height="300" style="margin:24px auto;"></canvas>
+    <div class="report-chart-grid">
+      <article class="report-chart-card">
+        <h4>Popular Items</h4>
+        <canvas id="popularItemChart" width="400" height="300"></canvas>
+      </article>
+      <article class="report-chart-card">
+        <h4>Payment Usage</h4>
+        <canvas id="paymentUsageChart" width="400" height="300"></canvas>
+      </article>
+      <article class="report-chart-card report-chart-card--wide">
+        <h4>Order Type Percentage</h4>
+        <canvas id="orderTypeChart" width="400" height="300"></canvas>
+      </article>
+    </div>
   `;
 
   // --- Count users in users node ---
@@ -691,7 +742,7 @@ function renderAnalyticsReport() {
           label: 'Item Popularity (%)',
           data: percentages,
           backgroundColor: [
-            '#1976d2', '#388e3c', '#fbc02d', '#d32f2f', '#7b1fa2', '#0288d1', '#c2185b'
+            '#5a3f2b', '#8a623e', '#b99668', '#d8c4a3', '#766b5f', '#2f7d56', '#9a6b1f'
           ]
         }]
       },
@@ -725,7 +776,7 @@ function renderAnalyticsReport() {
         datasets: [{
           label: 'Payment Usage Rate',
           data: [data?.gcash?.rate || 0, data?.cash?.rate || 0],
-          backgroundColor: ['#1976d2', '#fbc02d']
+          backgroundColor: ['#5a3f2b', '#d8c4a3']
         }]
       },
       options: {
@@ -750,7 +801,7 @@ function renderAnalyticsReport() {
       ["dine-in", "take-out", "pickup"].forEach(type => {
         const percent = data[type]?.percentage ?? 0;
         const li = document.createElement('li');
-        li.innerHTML = `<strong>${type.charAt(0).toUpperCase() + type.slice(1)} Orders:</strong> ${percent}%`;
+        li.innerHTML = `<span>${type.charAt(0).toUpperCase() + type.slice(1)} Orders</span><strong>${percent}%</strong>`;
         list.appendChild(li);
         labels.push(type.charAt(0).toUpperCase() + type.slice(1));
         percentages.push(percent);
@@ -765,7 +816,7 @@ function renderAnalyticsReport() {
         datasets: [{
           label: 'Order Type (%)',
           data: percentages,
-          backgroundColor: ['#388e3c', '#fbc02d', '#d32f2f']
+          backgroundColor: ['#2f7d56', '#b99668', '#9a6b1f']
         }]
       },
       options: {
@@ -887,10 +938,10 @@ function renderArchiveRecords() {
           const key = btn.getAttribute('data-key');
           const record = data[key];
           if (!key || !record) return;
-          set(ref(database, `${type}/${key}`), record).then(() => {
-            remove(ref(database, `archive/${type}/${key}`)).then(() => {
-              renderArchiveTable(type);
-            });
+          runAuthedWrite("restore archived report", `${type}/${key} and archive/${type}/${key}`, async () => {
+            await set(ref(database, `${type}/${key}`), record);
+            await remove(ref(database, `archive/${type}/${key}`));
+            renderArchiveTable(type);
           });
         };
       });
@@ -903,7 +954,8 @@ function renderArchiveRecords() {
           showArchiveModal(
             `Are you sure you want to permanently delete this archived record? This action cannot be undone.`,
             () => {
-              remove(ref(database, `archive/${type}/${key}`)).then(() => {
+              runAuthedWrite("delete archived report", `archive/${type}/${key}`, async () => {
+                await remove(ref(database, `archive/${type}/${key}`));
                 renderArchiveTable(type);
               });
             }
@@ -920,13 +972,35 @@ function renderArchiveRecords() {
 }
 
 
+function setActiveReportButton(activeId) {
+  document.querySelectorAll('.report-buttons button').forEach((button) => {
+    button.classList.toggle('is-active', button.id === activeId);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('view-analytics-report').addEventListener('click', renderAnalyticsReport);
-  document.getElementById('view-weekly-report').addEventListener('click', renderWeeklyReport);
-  document.getElementById('view-monthly-report').addEventListener('click', renderMonthlyReport);
-  document.getElementById('view-annual-report').addEventListener('click', renderAnnualReport);
-  document.getElementById('view-archive-records').addEventListener('click', renderArchiveRecords);
+  document.getElementById('view-analytics-report').addEventListener('click', () => {
+    setActiveReportButton('view-analytics-report');
+    renderAnalyticsReport();
+  });
+  document.getElementById('view-weekly-report').addEventListener('click', () => {
+    setActiveReportButton('view-weekly-report');
+    renderWeeklyReport();
+  });
+  document.getElementById('view-monthly-report').addEventListener('click', () => {
+    setActiveReportButton('view-monthly-report');
+    renderMonthlyReport();
+  });
+  document.getElementById('view-annual-report').addEventListener('click', () => {
+    setActiveReportButton('view-annual-report');
+    renderAnnualReport();
+  });
+  document.getElementById('view-archive-records').addEventListener('click', () => {
+    setActiveReportButton('view-archive-records');
+    renderArchiveRecords();
+  });
 
   // Optionally, show weekly report by default
+  setActiveReportButton('view-analytics-report');
   renderAnalyticsReport();
 });

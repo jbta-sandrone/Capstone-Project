@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // Firebase configuration
@@ -14,6 +15,34 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
+
+function waitForCurrentUser() {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
+
+async function runAuthedWrite(operationLabel, databasePath, writeOperation) {
+  const user = await waitForCurrentUser();
+  if (!user) {
+    console.warn(`Firebase write blocked: ${operationLabel} at "${databasePath}" requires an authenticated Firebase user.`);
+    return false;
+  }
+
+  try {
+    await writeOperation(user);
+    return true;
+  } catch (error) {
+    console.error(`Firebase write failed: ${operationLabel} at "${databasePath}"`, error);
+    return false;
+  }
+}
 
 // Category mapping: db node -> container id
 const categories = [
@@ -87,6 +116,27 @@ function getCategoryDisplayName(node) {
   }
 }
 
+function getItemPriceSummary(data) {
+  if (Array.isArray(data.sizes) && data.sizes.length) {
+    return data.sizes.map((size) => `${size.size}: P${size.price || 0}`).join(" | ");
+  }
+
+  if (Array.isArray(data.types) && data.types.length) {
+    return data.types.map((type) => `${type.type}: P${type.price || 0}`).join(" | ");
+  }
+
+  return data.price ? `P${data.price}` : "No price set";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // Fetch and render items
 categories.forEach(({ node, container }) => {
   const containerDiv = document.getElementById(container);
@@ -99,9 +149,16 @@ categories.forEach(({ node, container }) => {
       const data = child.val();
       const key = child.key;
       const itemDiv = document.createElement("div");
-      itemDiv.className = "admin-item-row";
+      itemDiv.className = `admin-item-row${data.disabled ? " is-disabled" : ""}`;
       itemDiv.innerHTML = `
-        <span>${data.name || "(No Name)"}</span>
+        <div class="admin-item-media">
+          ${data.image ? `<img src="${escapeHtml(data.image)}" alt="${escapeHtml(data.name || "Menu item")}">` : `<span><i class="fas fa-mug-hot"></i></span>`}
+        </div>
+        <div class="admin-item-copy">
+          <strong>${escapeHtml(data.name || "(No Name)")}</strong>
+          <small>${escapeHtml(getItemPriceSummary(data))}</small>
+          <em>${data.disabled ? "Unavailable" : "Available"}</em>
+        </div>
         ${getIconsHtml(node, key)}
       `;
       containerDiv.appendChild(itemDiv);
@@ -113,8 +170,8 @@ categories.forEach(({ node, container }) => {
         showModal(
           `Are you sure you want to delete "${data.name || "(No Name)"}"?`,
           () => {
-            remove(ref(database, `${pendingDelete.category}/${pendingDelete.key}`))
-              .then(() => {
+            runAuthedWrite("delete menu item", `${pendingDelete.category}/${pendingDelete.key}`, async () => {
+              await remove(ref(database, `${pendingDelete.category}/${pendingDelete.key}`));
                 if (pendingDelete.itemDiv && pendingDelete.itemDiv.parentNode) {
                   pendingDelete.itemDiv.parentNode.removeChild(pendingDelete.itemDiv);
                 }
@@ -126,7 +183,7 @@ categories.forEach(({ node, container }) => {
                   }, 2000);
                 }
                 pendingDelete = null;
-              });
+            });
           }
         );
       });
@@ -137,8 +194,8 @@ categories.forEach(({ node, container }) => {
         showModal(
           `Are you sure you want to set "${data.name || "(No Name)"}" as Unavailable?`,
           () => {
-            update(ref(database, `${node}/${key}`), { disabled: true })
-              .then(() => {
+            runAuthedWrite("disable menu item", `${node}/${key}`, async () => {
+              await update(ref(database, `${node}/${key}`), { disabled: true });
                 if (successDiv) {
                   successDiv.textContent = "Item set to Unavailable!";
                   successDiv.style.display = 'block';
@@ -146,7 +203,7 @@ categories.forEach(({ node, container }) => {
                     successDiv.style.display = 'none';
                   }, 2000);
                 }
-              });
+            });
           }
         );
       });
@@ -157,8 +214,8 @@ categories.forEach(({ node, container }) => {
         showModal(
           `Are you sure you want to set "${data.name || "(No Name)"}" as Available?`,
           () => {
-            update(ref(database, `${node}/${key}`), { disabled: false })
-              .then(() => {
+            runAuthedWrite("enable menu item", `${node}/${key}`, async () => {
+              await update(ref(database, `${node}/${key}`), { disabled: false });
                 if (successDiv) {
                   successDiv.textContent = "Item set to Available!";
                   successDiv.style.display = 'block';
@@ -166,7 +223,7 @@ categories.forEach(({ node, container }) => {
                     successDiv.style.display = 'none';
                   }, 2000);
                 }
-              });
+            });
           }
         );
       });
@@ -197,6 +254,8 @@ if (submitBtn) submitBtn.textContent = "Edit";
 
         document.getElementById('item-name').value = data.name || '';
         document.getElementById('item-price').value = data.price || '';
+        const itemImageInput = document.getElementById('item-image');
+        if (itemImageInput) itemImageInput.removeAttribute('required');
 
         // --- DYNAMIC SIZE/TYPE ROWS ---
         const sizePriceContainer = document.getElementById('size-price-container');

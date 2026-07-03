@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // Firebase configuration
@@ -14,7 +15,35 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
 const fastAddForm = document.getElementById('fast-add-form');
+
+function waitForCurrentUser() {
+    if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
+    return new Promise((resolve) => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            unsubscribe();
+            resolve(user);
+        });
+    });
+}
+
+async function runAuthedWrite(operationLabel, databasePath, writeOperation) {
+    const user = await waitForCurrentUser();
+    if (!user) {
+        console.warn(`Firebase write blocked: ${operationLabel} at "${databasePath}" requires an authenticated Firebase user.`);
+        return false;
+    }
+
+    try {
+        await writeOperation(user);
+        return true;
+    } catch (error) {
+        console.error(`Firebase write failed: ${operationLabel} at "${databasePath}"`, error);
+        return false;
+    }
+}
 
 // --- Fast form submit handler ---
 if (fastAddForm) {
@@ -123,8 +152,8 @@ fastAddForm.addEventListener('submit', async function(e) {
             });
         }
         // Update the item in the database
-        await update(ref(database, `${window.editingItem.node}/${window.editingItem.key}`), data)
-            .then(() => {
+        await runAuthedWrite("edit menu item", `${window.editingItem.node}/${window.editingItem.key}`, async () => {
+            await update(ref(database, `${window.editingItem.node}/${window.editingItem.key}`), data);
                 if (overlay) overlay.style.display = 'none';
                 this.reset();
                 window.editingItem = null;
@@ -140,17 +169,14 @@ fastAddForm.addEventListener('submit', async function(e) {
                 if (dbNode === "fries") displayFriesItems && displayFriesItems();
                 if (dbNode === "extras") displayExtrasItems && displayExtrasItems();
                 if (dbNode === "bestseller") displayBestSellerItems && displayBestSellerItems();
-            })
-            .catch((error) => {
-                // Handle error if needed
-            });
+        });
         return;
     }
 
     // --- ADD/CREATE LOGIC ---
     const refNode = ref(database, dbNode);
-    push(refNode, data)
-        .then(() => {
+    await runAuthedWrite("add menu item", dbNode, async () => {
+        await push(refNode, data);
             if (overlay) overlay.style.display = 'none';
             this.reset();
             // Refresh the display for the relevant category
@@ -165,10 +191,7 @@ fastAddForm.addEventListener('submit', async function(e) {
             if (dbNode === "fries") displayFriesItems && displayFriesItems();
             if (dbNode === "extras") displayExtrasItems && displayExtrasItems();
             if (dbNode === "bestseller") displayBestSellerItems && displayBestSellerItems();
-        })
-        .catch((error) => {
-            // No error alert
-        });
+    });
 });
 }
 

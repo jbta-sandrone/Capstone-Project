@@ -7,15 +7,82 @@
     <title>Order Receipt</title>
     <link rel="stylesheet" href="../css/receipt.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/cliq-ui.css">
 </head>
 <body>
-    <h1>Order Completed</h1>
-    <p>Thank you for ordering!</p>
-    <p>Your order number is: <strong>{{ order_number }}</strong></p>
+    <main class="receipt-page" aria-live="polite">
+        <section class="receipt-card">
+            <header class="receipt-header">
+                <div class="receipt-brand">
+                    <img src="../img/bhivelogo.jpg" alt="B-Hive Cafe logo">
+                    <div>
+                        <span>CLIQ Receipt</span>
+                        <strong>B-Hive Cafe</strong>
+                    </div>
+                </div>
+                <span class="receipt-status">Order Completed</span>
+            </header>
 
-    <button class="back" onclick="window.location.href='notification.html'"><i class="fas fa-arrow-left"></i> See Order Status</button>
-    
+            <section class="receipt-hero">
+                <p class="receipt-eyebrow">Thank you for ordering</p>
+                <h1>Your order number is <strong id="receipt-order-number">{{ order_number }}</strong></h1>
+                <p id="receipt-message">We received your cafe order. You can view live updates in Order Status.</p>
+            </section>
+
+            <section class="receipt-summary" aria-label="Receipt summary">
+                <div>
+                    <span>Order ID</span>
+                    <strong id="receipt-order-id">-</strong>
+                </div>
+                <div>
+                    <span>Date</span>
+                    <strong id="receipt-date">Today</strong>
+                </div>
+                <div>
+                    <span>Total</span>
+                    <strong id="receipt-total">Loading...</strong>
+                </div>
+            </section>
+
+            <section class="receipt-section">
+                <div class="receipt-section__title">
+                    <i class="fas fa-mug-hot" aria-hidden="true"></i>
+                    <h2>Order Details</h2>
+                </div>
+                <div class="receipt-items" id="receipt-items">
+                    <p class="receipt-muted">Loading order details...</p>
+                </div>
+            </section>
+
+            <section class="receipt-info-grid" aria-label="Payment and order information">
+                <div>
+                    <span>Payment Method</span>
+                    <strong id="receipt-payment">-</strong>
+                </div>
+                <div>
+                    <span>Order Type</span>
+                    <strong id="receipt-order-type">-</strong>
+                </div>
+                <div class="receipt-info-grid__wide">
+                    <span>Notes</span>
+                    <strong id="receipt-notes">None</strong>
+                </div>
+            </section>
+
+            <div class="receipt-actions">
+                <button type="button" id="view-order-status" class="receipt-primary-action">
+                    <i class="fas fa-bell" aria-hidden="true"></i>
+                    View Order Status
+                </button>
+                <a class="receipt-secondary-action" href="dashboard.html">
+                    <i class="fas fa-home" aria-hidden="true"></i>
+                    Dashboard
+                </a>
+            </div>
+        </section>
+    </main>
+
 <!-- Classic Firebase SDKs (v8) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -24,20 +91,132 @@
 <!-- Your config -->
 <script src="../js/firebase-config.js"></script>
 
+<script>
+(function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderID = urlParams.get("orderID") || String(Math.floor(1000 + Math.random() * 9000));
+    const userUid = localStorage.getItem("userUid");
 
+    const orderNumber = document.getElementById("receipt-order-number");
+    const orderId = document.getElementById("receipt-order-id");
+    const date = document.getElementById("receipt-date");
+    const total = document.getElementById("receipt-total");
+    const items = document.getElementById("receipt-items");
+    const payment = document.getElementById("receipt-payment");
+    const orderType = document.getElementById("receipt-order-type");
+    const notes = document.getElementById("receipt-notes");
+    const message = document.getElementById("receipt-message");
+    const statusButton = document.getElementById("view-order-status");
 
+    orderNumber.textContent = orderID;
+    orderId.textContent = orderID;
+    date.textContent = new Date().toLocaleDateString("en-PH", {
+        timeZone: "Asia/Manila",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
 
-    <script>
-// Get orderID from URL and display it
-const urlParams = new URLSearchParams(window.location.search);
-const orderID = urlParams.get('orderID');
-const orderNumberSpan = document.querySelector('strong');
-if (orderID) {
-    orderNumberSpan.textContent = orderID;
-} else {
-    // Fallback: generate a random 4-digit number
-    orderNumberSpan.textContent = Math.floor(1000 + Math.random() * 9000);
-}
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function parsePrice(value) {
+        return parseFloat(String(value || "0").replace(/[^0-9.]/g, "")) || 0;
+    }
+
+    function renderFallback() {
+        items.innerHTML = '<p class="receipt-muted">Order details are being prepared. Open Order Status for live updates.</p>';
+        total.textContent = "View status";
+        payment.textContent = "-";
+        orderType.textContent = "-";
+    }
+
+    function renderOrder(orderData) {
+        const orderItems = orderData.orders ? Object.values(orderData.orders) : [];
+        const computedTotal = orderItems.reduce((sum, item) => sum + parsePrice(item.price), 0);
+
+        if (orderData.date) {
+            date.textContent = new Date(orderData.date).toLocaleDateString("en-PH", {
+                timeZone: "Asia/Manila",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
+        }
+
+        payment.textContent = orderData.paymentMethod || "-";
+        orderType.textContent = orderData.orderType || "-";
+        notes.textContent = orderData.notes || "None";
+        total.textContent = `P${computedTotal.toFixed(2)}`;
+
+        items.innerHTML = orderItems.length
+            ? orderItems.map((item) => {
+                const details = [
+                    item.type,
+                    item.size,
+                    item.sugar,
+                    item.addon || item.addons,
+                    item.quantity ? `Qty ${item.quantity}` : ""
+                ].filter(Boolean).map(escapeHtml).join(" | ");
+
+                return `
+                    <article class="receipt-item">
+                        <div>
+                            <strong>${escapeHtml(item.item || "Cafe item")}</strong>
+                            <span>${details || "Standard order"}</span>
+                        </div>
+                        <b>${escapeHtml(item.price || `P${parsePrice(item.price).toFixed(2)}`)}</b>
+                    </article>
+                `;
+            }).join("")
+            : '<p class="receipt-muted">No item details found for this receipt.</p>';
+    }
+
+    if (statusButton) {
+        statusButton.addEventListener("click", () => {
+            const targetUrl = "dashboard.html?open=notifications";
+            localStorage.setItem("cliqDashboardOpen", "notifications");
+            if (window.top && window.top !== window.self) {
+                window.top.location.href = targetUrl;
+            } else {
+                window.location.href = targetUrl;
+            }
+        });
+    }
+
+    if (!userUid || !window.firebase || !firebase.database) {
+        renderFallback();
+        return;
+    }
+
+    firebase.database().ref(`users/${userUid}/notification`).once("value")
+        .then((snapshot) => {
+            if (!snapshot.exists()) {
+                renderFallback();
+                return;
+            }
+
+            const notifications = snapshot.val();
+            const orderData = Object.values(notifications).find((entry) => String(entry.orderID) === String(orderID));
+
+            if (orderData) {
+                renderOrder(orderData);
+            } else {
+                renderFallback();
+                message.textContent = "Your order number is saved. Open Order Status to see the latest update.";
+            }
+        })
+        .catch(() => {
+            renderFallback();
+            message.textContent = "Receipt details could not load right now. Order Status will show the latest update.";
+        });
+})();
 </script>
 
 <script src="../js/cliq-layout.js"></script>

@@ -3,10 +3,12 @@ import {
   getDatabase,
   ref,
   get,
-  child
+  child,
+  set
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 import {
   getAuth,
+  onAuthStateChanged,
   EmailAuthProvider,
   reauthenticateWithCredential,
   updatePassword
@@ -26,6 +28,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const auth = getAuth(app);
+
+function waitForCurrentUser() {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
 
 // --- Fetch & Display Admin Profile Info ---
 function fetchAndDisplayAdminProfile() {
@@ -118,8 +131,13 @@ function showChangeUsernameOverlay() {
           return;
         }
         const userRef = ref(database, `users/${adminUid}/username`);
-        import("https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js").then(({ set }) => {
-          set(userRef, newUsername)
+        waitForCurrentUser().then((authUser) => {
+          if (!authUser) {
+            messageDiv.textContent = "Please log in with an authenticated admin account before changing username.";
+            console.warn(`Firebase write blocked: change admin username at "users/${adminUid}/username" requires an authenticated Firebase user.`);
+            return;
+          }
+          return set(ref(database, `users/${authUser.uid}/username`), newUsername)
             .then(() => {
               messageDiv.style.color = "#28a745";
               messageDiv.textContent = "Username changed successfully!";
@@ -128,6 +146,7 @@ function showChangeUsernameOverlay() {
               setTimeout(() => overlay.remove(), 1200);
             })
             .catch((err) => {
+              console.error(`Firebase write failed: change admin username at "users/${authUser.uid}/username"`, err);
               messageDiv.textContent = "Failed to change username: " + err.message;
             });
         });

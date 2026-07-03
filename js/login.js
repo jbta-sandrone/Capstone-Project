@@ -49,6 +49,56 @@ window.onclick = function (event) {
   }
 };
 
+function showLoginRedirectTransition(targetUrl) {
+  const messages = [
+    "Preparing your dashboard...",
+    "Brewing your CLIQ experience...",
+    "Loading your cafe orders...",
+    "Welcome back to B-Hive Cafe..."
+  ];
+
+  const existingOverlay = document.querySelector(".cliq-login-transition");
+  if (existingOverlay) existingOverlay.remove();
+
+  const overlay = document.createElement("div");
+  overlay.className = "cliq-login-transition";
+  overlay.setAttribute("role", "status");
+  overlay.setAttribute("aria-live", "polite");
+  overlay.innerHTML = `
+    <div class="cliq-login-transition__card">
+      <div class="cliq-login-transition__brand">CLIQ<small>B-Hive Cafe</small></div>
+      <div class="cliq-login-transition__beans" aria-hidden="true">
+        <span class="cliq-login-transition__bean"></span>
+        <span class="cliq-login-transition__bean"></span>
+        <span class="cliq-login-transition__bean"></span>
+      </div>
+      <div class="cliq-login-transition__message">${messages[0]}</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const message = overlay.querySelector(".cliq-login-transition__message");
+  let index = 0;
+  const messageTimer = setInterval(() => {
+    index = (index + 1) % messages.length;
+    message.style.opacity = "0";
+    setTimeout(() => {
+      message.textContent = messages[index];
+      message.style.opacity = "1";
+    }, 180);
+  }, 800);
+
+  requestAnimationFrame(() => overlay.classList.add("is-visible"));
+
+  setTimeout(() => {
+    clearInterval(messageTimer);
+    overlay.classList.add("is-leaving");
+    setTimeout(() => {
+      window.location.href = targetUrl;
+    }, 420);
+  }, 3400);
+}
+
 // Login logic
 loginButton.addEventListener("click", function (event) {
   event.preventDefault();
@@ -58,7 +108,7 @@ loginButton.addEventListener("click", function (event) {
 
   // --- Admin fixed login ---
   if (usernameValue === "admin123" && passwordValue === "admin_@123") {
-    window.location.href = "admindashboard.html";
+    showLoginRedirectTransition("admindashboard.html");
     return;
   }
 
@@ -97,9 +147,9 @@ loginButton.addEventListener("click", function (event) {
               localStorage.setItem("loggedInUsername", usernameValue);
               localStorage.setItem("userUid", userUid);
               if (userRole === "admin") {
-                window.location.href = "admindashboard.html";
+                showLoginRedirectTransition("admindashboard.html");
               } else {
-                window.location.href = "dashboard.html";
+                showLoginRedirectTransition("dashboard.html");
               }
             })
             .catch((error) => {

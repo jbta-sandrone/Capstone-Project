@@ -74,6 +74,7 @@
 
   if (page === "admindashboard.html") {
     document.body.classList.add("cliq-admin-dashboard-page");
+    if (document.querySelector(".admin-dashboard-shell")) return;
     addMobileControls();
     return;
   }
@@ -176,6 +177,62 @@
         document.body.classList.toggle("cliq-sidebar-open");
       });
     }
+
+    openRequestedDashboardSection(currentPage);
+  }
+
+  function openRequestedDashboardSection(currentPage) {
+    const intent = getDashboardOpenIntent();
+    if (!intent) return;
+
+    const map = {
+      cart: {
+        href: currentPage === "onsitedashboard.html" ? "onsitecart.html" : "cart.html",
+        title: currentPage === "onsitedashboard.html" ? "Onsite Cart" : "Cart"
+      },
+      "my-order": { href: "cart.html", title: "Cart" },
+      "my-orders": { href: "cart.html", title: "Cart" },
+      order: { href: "cart.html", title: "Cart" },
+      orders: { href: "cart.html", title: "Cart" },
+      notifications: { href: "notification.html", title: "Notifications" },
+      notification: { href: "notification.html", title: "Notifications" },
+      status: { href: "notification.html", title: "Notifications" },
+      "order-status": { href: "notification.html", title: "Notifications" }
+    };
+
+    const target = map[intent];
+    if (!target) return;
+    clearDashboardOpenIntentUrl();
+
+    const openIntent = () => setTimeout(() => {
+      openDashboardFrame(target.href, target.title, findDashboardLink(target.href));
+    }, 0);
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", openIntent, { once: true });
+    } else {
+      openIntent();
+    }
+  }
+
+  function getDashboardOpenIntent() {
+    const queryIntent = (params.get("open") || params.get("section") || "").trim().toLowerCase();
+    const hashIntent = (location.hash || "").replace(/^#/, "").trim().toLowerCase();
+    const storedIntent = (localStorage.getItem("cliqDashboardOpen") || "").trim().toLowerCase();
+
+    if (storedIntent) localStorage.removeItem("cliqDashboardOpen");
+    return queryIntent || hashIntent || storedIntent;
+  }
+
+  function clearDashboardOpenIntentUrl() {
+    if (!history.replaceState) return;
+    if (!params.has("open") && !params.has("section") && !location.hash) return;
+
+    const cleanUrl = new URL(location.href);
+    cleanUrl.searchParams.delete("open");
+    cleanUrl.searchParams.delete("section");
+    cleanUrl.hash = "";
+    history.replaceState(null, "", cleanUrl.pathname.split("/").pop() + cleanUrl.search);
   }
 
   function findDashboardLink(href) {
@@ -196,9 +253,7 @@
           <p class="dashboard-embed-eyebrow">Dashboard Section</p>
           <h2 id="dashboard-embed-title">Section</h2>
         </div>
-        <button type="button" id="dashboard-embed-close" aria-label="Return to dashboard home">
-          <i class="fas fa-times"></i>
-        </button>
+        
       </div>
       <div class="dashboard-embed-shell">
         <iframe id="dashboard-embed-frame" title="Dashboard section content"></iframe>

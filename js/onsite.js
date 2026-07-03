@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // Firebase configuration (reuse your config)
@@ -14,6 +15,17 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
+
+function waitForCurrentUser() {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
 
 // helper: session id for onsite cart (persists per browser)
 function getOnsiteSessionId() {
@@ -60,13 +72,22 @@ function animateCartIcon() {
 }
 
 // generic push to onsitecart (adds session and timestamp)
-function pushToOnsiteCart(orderData) {
+async function pushToOnsiteCart(orderData) {
+  const authUser = await waitForCurrentUser();
+  if (!authUser) {
+    console.warn('Firebase write blocked: add onsite item to cart at "onsitecart" requires an authenticated Firebase user.');
+    throw new Error('Please log in again before adding onsite cart items.');
+  }
+
   const payload = {
     ...orderData,
     sessionId: getOnsiteSessionId(),
     addedAt: Date.now()
   };
-  return push(ONSITE_CART_REF, payload);
+  return push(ONSITE_CART_REF, payload).catch((error) => {
+    console.error('Firebase write failed: add onsite item to cart at "onsitecart"', error);
+    throw error;
+  });
 }
 
 /* -------------------------

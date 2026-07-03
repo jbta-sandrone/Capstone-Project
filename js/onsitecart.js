@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // Firebase configuration (same as other files)
@@ -14,6 +15,31 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
+
+function waitForCurrentUser() {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
+
+async function removeOnsiteCartPath(databasePath) {
+  const authUser = await waitForCurrentUser();
+  if (!authUser) {
+    console.warn(`Firebase write blocked: delete onsite cart data at "${databasePath}" requires an authenticated Firebase user.`);
+    return;
+  }
+
+  try {
+    await remove(ref(database, databasePath));
+  } catch (error) {
+    console.error(`Firebase write failed: delete onsite cart data at "${databasePath}"`, error);
+  }
+}
 
 // wait for DOM so #cart-items exists
 document.addEventListener('DOMContentLoaded', () => {
@@ -115,14 +141,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (deleteBtn) {
       const itemKey = deleteBtn.getAttribute('data-key');
       showModal("Are you sure you want to delete this item?", () => {
-        remove(ref(database, `onsitecart/${itemKey}`)).catch(err => console.error("❌ delete item error:", err));
+        removeOnsiteCartPath(`onsitecart/${itemKey}`);
       });
       return;
     }
 
     if (event.target.id === 'delete-all') {
       showModal("Are you sure you want to delete all cart items?", () => {
-        remove(ref(database, 'onsitecart')).catch(err => console.error("❌ delete all error:", err));
+        removeOnsiteCartPath('onsitecart');
       });
       return;
     }

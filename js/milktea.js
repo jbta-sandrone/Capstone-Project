@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // Firebase configuration
@@ -14,6 +15,17 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
+
+function waitForCurrentUser() {
+    if (auth.currentUser) return Promise.resolve(auth.currentUser);
+    return new Promise((resolve) => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            unsubscribe();
+            resolve(user);
+        });
+    });
+}
 
 function displayMilkteaItems() {
     const milkteaRef = ref(database, 'milktea');
@@ -235,8 +247,15 @@ function displayMilkteaItems() {
 
     // Add to cart button logic
     const overlayAddToCartBtn = document.getElementById('overlay-add-to-cart-btn');
-    overlayAddToCartBtn.onclick = function () {
-        const userUid = localStorage.getItem('userUid');
+    overlayAddToCartBtn.onclick = async function () {
+        const authUser = await waitForCurrentUser();
+        if (!authUser) {
+            console.warn('Firebase write blocked: add milk tea to cart at "users/{uid}/ordercart" requires an authenticated Firebase user.');
+            alert("Please log in again before adding items to cart.");
+            return;
+        }
+        const userUid = authUser.uid;
+        localStorage.setItem('userUid', userUid);
         if (!userUid) {
             alert("You must be logged in to add to cart.");
             return;
@@ -298,6 +317,7 @@ if (cartIcon) {
                 }, 400);
             })
             .catch((error) => {
+                console.error(`Firebase write failed: add milk tea to cart at "users/${userUid}/ordercart"`, error);
                 alert("Error adding item to cart: " + error.message);
             });
     };

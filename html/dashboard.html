@@ -212,19 +212,38 @@
 
       <!--HISTORY SECTION-->
     <div class="history-tab" id="history-tab">
-        
-        <div class="history-order" id="history-order">
-          <!--Order History Displays here-->
-          
-        </div>
+        <section class="history-shell" aria-labelledby="history-title">
+          <div class="history-hero">
+            <div>
+              <p class="history-eyebrow">Cafe Dashboard</p>
+              <h2 id="history-title">Order History</h2>
+              <p>Review your past B-Hive Cafe orders, receipts, and quick reorder options.</p>
+            </div>
+            <div class="history-hero__icon" aria-hidden="true">
+              <i class="fas fa-mug-hot"></i>
+            </div>
+          </div>
 
-        <div class="history-details" id="history-details">
-            <!--Order Details Content Displays here-->
-        </div>
+          <div class="history-panel">
+            <div class="history-panel__top">
+              <div>
+                <span class="history-panel__label">Recent Orders</span>
+                <strong>Your cafe trail</strong>
+              </div>
+              <button id="delete-all-history">
+                <i class="fa fa-trash"></i> Delete All History
+              </button>
+            </div>
 
-        <button id="delete-all-history">
-          <i class="fa fa-trash"></i> Delete All History
-        </button>
+            <div class="history-order" id="history-order">
+              <!--Order History Displays here-->
+            </div>
+
+            <div class="history-details" id="history-details">
+                <!--Order Details Content Displays here-->
+            </div>
+          </div>
+        </section>
 
     </div>
 

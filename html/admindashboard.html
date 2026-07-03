@@ -4,47 +4,239 @@
     <link rel="icon" type="image/png" href="../img/bhivelogo.jpg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../css/admindashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/cliq-ui.css">
 </head>
 <body>
-    <div class="adminform">
+    <div class="admin-dashboard-shell">
+        <aside class="admin-sidebar" aria-label="Admin navigation">
+            <div class="admin-brand">
+                <img src="../img/bhivelogo.jpg" alt="B-Hive Cafe logo">
+                <div>
+                    <strong>B-Hive CLIQ</strong>
+                    <span>Admin Panel</span>
+                </div>
+            </div>
 
-    <div class="admin-header">
-        
-        <h1>Admin <i class="fas fa-user-shield"></i></h1>
+            <button type="button" class="admin-mobile-toggle" id="admin-mobile-toggle" aria-label="Open admin navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <nav class="admin-nav">
+                <a href="#home" class="admin-nav-link is-active" data-admin-section="home" data-admin-title="Dashboard Home">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="adminprofile.html" class="admin-nav-link" data-admin-section="profile" data-admin-title="Profile">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="orderqueue.html" class="admin-nav-link" data-admin-section="orders" data-admin-title="Orders">
+                    <span class="admin-nav-icon-wrap">
+                        <i class="fas fa-clipboard-list" id="ordernum"></i>
+                        <span class="number-order">0</span>
+                    </span>
+                    <span>Orders</span>
+                </a>
+                <a href="inventory.html" class="admin-nav-link" data-admin-section="items" data-admin-title="Items">
+                    <i class="fas fa-mug-hot"></i>
+                    <span>Items</span>
+                </a>
+                <a href="adminfeedback.html" class="admin-nav-link" data-admin-section="feedback" data-admin-title="Feedback">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Feedback</span>
+                </a>
+                <a href="analytics.html" class="admin-nav-link" data-admin-section="reports" data-admin-title="Reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <button class="logout" type="button">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <button type="button" class="admin-menu-button" id="admin-menu-button" aria-label="Open admin navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <p class="admin-eyebrow">Cafe Management</p>
+                    <h1 id="admin-page-title">Dashboard Home</h1>
+                </div>
+                <div class="admin-topbar-badge">
+                    <i class="fas fa-mug-hot"></i>
+                    <span>Live Workspace</span>
+                </div>
+            </header>
+
+            <section class="admin-home admin-section is-active" id="admin-home">
+                <div class="admin-home-hero">
+                    <div>
+                        <p class="admin-eyebrow">Welcome Back</p>
+                        <h2>Manage B-Hive Cafe from one calm, focused workspace.</h2>
+                        <p>Track active orders, sales summaries, customer activity, menu inventory, and feedback without leaving the dashboard.</p>
+                    </div>
+                    <div class="admin-home-hero__panel">
+                        <span>Today</span>
+                        <strong id="admin-current-date">Loading...</strong>
+                    </div>
+                </div>
+
+                <div class="admin-stats-grid">
+                    <article class="admin-stat-card">
+                        <span class="admin-stat-icon"><i class="fas fa-receipt"></i></span>
+                        <div>
+                            <p>Total Orders</p>
+                            <strong id="stat-total-orders">Loading...</strong>
+                            <small>Completed plus pending orders</small>
+                        </div>
+                    </article>
+                    <article class="admin-stat-card">
+                        <span class="admin-stat-icon"><i class="fas fa-hourglass-half"></i></span>
+                        <div>
+                            <p>Pending Orders</p>
+                            <strong id="stat-pending-orders">Loading...</strong>
+                            <small>Currently in order queue</small>
+                        </div>
+                    </article>
+                    <article class="admin-stat-card">
+                        <span class="admin-stat-icon"><i class="fas fa-check-circle"></i></span>
+                        <div>
+                            <p>Completed Orders</p>
+                            <strong id="stat-completed-orders">Loading...</strong>
+                            <small>From yearly sales records</small>
+                        </div>
+                    </article>
+                    <article class="admin-stat-card">
+                        <span class="admin-stat-icon"><i class="fas fa-users"></i></span>
+                        <div>
+                            <p>Total Customers</p>
+                            <strong id="stat-total-customers">Loading...</strong>
+                            <small>Registered customer accounts</small>
+                        </div>
+                    </article>
+                    <article class="admin-stat-card">
+                        <span class="admin-stat-icon"><i class="fas fa-star"></i></span>
+                        <div>
+                            <p>Best Selling Item</p>
+                            <strong id="stat-best-item">Loading...</strong>
+                            <small id="stat-best-item-detail">From analytics/items</small>
+                        </div>
+                    </article>
+                    <article class="admin-stat-card">
+                        <span class="admin-stat-icon"><i class="fas fa-calendar-week"></i></span>
+                        <div>
+                            <p>Weekly Revenue</p>
+                            <strong id="stat-weekly-revenue">Loading...</strong>
+                            <small id="stat-weekly-label">Current week</small>
+                        </div>
+                    </article>
+                    <article class="admin-stat-card">
+                        <span class="admin-stat-icon"><i class="fas fa-calendar-alt"></i></span>
+                        <div>
+                            <p>Monthly Revenue</p>
+                            <strong id="stat-monthly-revenue">Loading...</strong>
+                            <small id="stat-monthly-label">Current month</small>
+                        </div>
+                    </article>
+                    <article class="admin-stat-card">
+                        <span class="admin-stat-icon"><i class="fas fa-chart-line"></i></span>
+                        <div>
+                            <p>Yearly Revenue</p>
+                            <strong id="stat-yearly-revenue">Loading...</strong>
+                            <small id="stat-yearly-label">Current year</small>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="admin-dashboard-grid">
+                    <section class="admin-card admin-card--large">
+                        <div class="admin-card-header">
+                            <div>
+                                <p class="admin-eyebrow">Recent Orders</p>
+                                <h2>Order Queue</h2>
+                            </div>
+                            <button type="button" class="admin-text-button" data-admin-open="orders">View All</button>
+                        </div>
+                        <div class="admin-recent-orders" id="admin-recent-orders">
+                            <div class="admin-loading">Loading recent orders...</div>
+                        </div>
+                    </section>
+
+                    <section class="admin-card">
+                        <div class="admin-card-header">
+                            <div>
+                                <p class="admin-eyebrow">Quick Statistics</p>
+                                <h2>Sales Overview</h2>
+                            </div>
+                        </div>
+                        <div class="admin-overview-list">
+                            <div>
+                                <span>Weekly Revenue</span>
+                                <strong id="overview-weekly-sales">Loading...</strong>
+                            </div>
+                            <div>
+                                <span>Monthly Orders</span>
+                                <strong id="overview-monthly-orders">Loading...</strong>
+                            </div>
+                            <div>
+                                <span>Annual Revenue</span>
+                                <strong id="overview-annual-sales">Loading...</strong>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-card">
+                        <div class="admin-card-header">
+                            <div>
+                                <p class="admin-eyebrow">Popular Categories</p>
+                                <h2>Menu Coverage</h2>
+                            </div>
+                        </div>
+                        <div class="admin-category-list" id="admin-category-list">
+                            <div class="admin-loading">Loading categories...</div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+
+            <section class="admin-frame-section admin-section" id="admin-frame-section" aria-live="polite">
+                <div class="admin-frame-header">
+                    <div>
+                        <p class="admin-eyebrow">Admin Section</p>
+                        <h2 id="admin-frame-title">Section</h2>
+                    </div>
+                    <button type="button" id="admin-frame-close" aria-label="Return to admin home">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="admin-frame-shell">
+                    <iframe id="admin-frame" title="Admin section content"></iframe>
+                </div>
+            </section>
+        </main>
     </div>
 
-        <ul>
-            <a href="adminprofile.html"><i class="fas fa-user-shield"></i>Profile</a>
-            <a href="orderqueue.html" style="position:relative;">
-  <i class="fas fa-clipboard-list" id="ordernum"></i>
-  <h6 class="number-order">0</h6>
-  Orders
-</a>
-            <a href="inventory.html"><i class="fas fa-box"> </i> Manage Item</a>
-            <a href="adminfeedback.html"><i class="fas fa-comment-dots"></i> Feedback</a>
-            <a href="analytics.html"><i class="fas fa-chart-bar"></i> Sales and Reports</a>
-            
-        </ul>
-
-        <div class="button-container">
-            <button class="logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </div>
-    </div>
+    <div class="admin-scrim" id="admin-scrim"></div>
 
     <div id="confirmation-modal" class="modal">
-  <div class="modal-content">
-    <p id="modal-message">Are you sure you want to delete this record?</p>
-    <div class="modal-actions">
-      <button id="modal-confirm-btn" class="modal-btn confirm">Confirm</button>
-      <button id="modal-cancel-btn" class="modal-btn cancel">Cancel</button>
+        <div class="modal-content">
+            <p id="modal-message">Are you sure you want to delete this record?</p>
+            <div class="modal-actions">
+                <button id="modal-confirm-btn" class="modal-btn confirm">Confirm</button>
+                <button id="modal-cancel-btn" class="modal-btn cancel">Cancel</button>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
 <!-- Classic Firebase SDKs (v8) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -54,9 +246,7 @@
 <!-- Your config -->
 <script src="../js/firebase-config.js"></script>
 
-
 <script src="../js/admindashboard.js"></script>
-
 <script src="../js/cliq-layout.js"></script>
 </body>
 </html>
