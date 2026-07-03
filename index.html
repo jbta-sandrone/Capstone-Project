@@ -1,12 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>CLIQ — Welcome</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=html/index.html">
-    <title>CLIQ</title>
+    <style>
+        :root{
+            --bg:#f7f4ef; /* warm cream */
+            --accent:#3e2723; /* deep coffee */
+            --muted:#6b5049;
+        }
+        html,body{height:100%;margin:0}
+        body{
+            display:flex;align-items:center;justify-content:center;
+            background:var(--bg);color:var(--accent);font-family:Quicksand,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+            -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+        }
+        .wrap{display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center;padding:28px;text-align:center;min-height:100vh;box-sizing:border-box;}
+        .logo{font-weight:800;font-size:48px;letter-spacing:2px;transform:translateY(0);animation:float 3.5s ease-in-out both}
+        .logo small{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-top:6px}
+
+        @keyframes float{0%{transform:translateY(-6px);opacity:0}20%{opacity:1}50%{transform:translateY(0)}100%{transform:translateY(-4px)}}
+
+        .subtitle{font-size:14px;color:var(--muted);max-width:36rem}
+
+        /* Coffee beans loader: three beans bouncing */
+        .loader{display:flex;gap:12px;margin-top:6px}
+        .bean{width:14px;height:18px;border-radius:6px;background:var(--accent);transform-origin:center bottom;box-shadow:inset -2px -2px rgba(255,255,255,0.02)}
+        .bean::after{content:'';display:block;width:6px;height:10px;background:var(--bg);border-radius:50%;opacity:.15;position:relative;left:4px;top:3px}
+        .bean:nth-child(1){animation:bean-jump 850ms cubic-bezier(.2,.9,.2,1) infinite}
+        .bean:nth-child(2){animation:bean-jump 850ms cubic-bezier(.2,.9,.2,1) 140ms infinite}
+        .bean:nth-child(3){animation:bean-jump 850ms cubic-bezier(.2,.9,.2,1) 280ms infinite}
+        @keyframes bean-jump{0%{transform:translateY(0) scale(1);opacity:0.9}30%{transform:translateY(-18px) scale(1.06);opacity:1}60%{transform:translateY(0) scale(0.98)}100%{transform:translateY(0) scale(1)}}
+
+        .message{height:20px;margin-top:10px;font-size:13px;color:var(--muted);min-width:260px}
+
+        /* Fade overlay for exit */
+        .fade-out{animation:fadeOut 420ms ease-in forwards}
+        @keyframes fadeOut{to{opacity:0;transform:translateY(-6px)}}
+
+        /* Responsive tweaks */
+        @media (max-width:520px){.logo{font-size:34px}.wrap{padding:18px}.subtitle{font-size:13px}}
+    </style>
 </head>
 <body>
-    <p>Redirecting...</p>
+    <main class="wrap" role="main" aria-live="polite">
+        <div class="brand">
+            <div class="logo">CLIQ<small>café • minimal • crafted</small></div>
+            <div class="subtitle">A premium café experience — loading your menu and sounds.</div>
+        </div>
+
+        <div class="loader" aria-hidden="true">
+            <div class="bean"></div>
+            <div class="bean"></div>
+            <div class="bean"></div>
+        </div>
+        <div class="message" id="loading-message" aria-hidden="false"></div>
+    </main>
+
+    <script>
+        (function(){
+            const messages = [
+                'Preparing your café experience...',
+                'Brewing something special...',
+                'Grinding fresh ideas...',
+                'Transporting you into the café...',
+                'Warming up the menu...',
+                'Almost ready...',
+                'One sip away...'
+            ];
+
+            const display = document.getElementById('loading-message');
+            let idx = 0;
+            const interval = 800; // ms between messages
+            let cycles = 0;
+
+            // gentle fade-in
+            document.documentElement.style.opacity = 0;
+            requestAnimationFrame(()=>{document.documentElement.style.transition='opacity 420ms ease';document.documentElement.style.opacity=1});
+
+            const msgTimer = setInterval(()=>{
+                display.style.opacity = 0;display.textContent = messages[idx];
+                // fade in text
+                requestAnimationFrame(()=>{display.style.transition='opacity 420ms';display.style.opacity=1});
+                idx = (idx+1) % messages.length;
+                if(++cycles>4) cycles = cycles; // keep cycles count if needed
+            }, interval);
+
+            // total animation duration ~3500ms (3.5s)
+            const TOTAL = 5500;
+            setTimeout(()=>{
+                clearInterval(msgTimer);
+                // fade everything out smoothly
+                document.querySelector('.wrap').classList.add('fade-out');
+                document.documentElement.style.transition='opacity 420ms ease';
+                document.documentElement.style.opacity = 0;
+                setTimeout(()=>{
+                    window.location.href = 'html/index.html';
+                },420);
+            }, TOTAL);
+        })();
+    </script>
+
+    <noscript>
+        <!-- Fallback for non-JS: immediate redirect -->
+        <meta http-equiv="refresh" content="0; url=html/index.html">
+        <div style="padding:24px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
+            <p style="font-weight:700;color:#3e2723;">CLIQ</p>
+            <p>JavaScript is required for the loading experience. Redirecting...</p>
+            <p><a href="html/index.html">Continue</a></p>
+        </div>
+    </noscript>
 </body>
 </html>
