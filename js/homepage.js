@@ -163,7 +163,7 @@ function renderBestsellerTable() {
       // h1 for item name, img for image
       tableBg.innerHTML = `
         <h1>${item.name || "No Name"}</h1>
-        <img src="${item.image || 'img/default.png'}" alt="${item.name || "Bestseller"}" >
+        <img src="${item.image || '../img/bhivelogo.jpg'}" alt="${item.name || "Bestseller"}" >
       `;
 
       // Add click event: click order-link then card11
