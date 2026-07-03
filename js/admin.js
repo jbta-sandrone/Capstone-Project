@@ -4,6 +4,8 @@ const addSizeBtn = document.getElementById('add-size-btn');
 const itemPriceLabel = document.querySelector('label[for="item-price"]');
 const itemPriceInput = document.getElementById('item-price');
 
+if (categorySelect && sizePriceContainer && addSizeBtn && itemPriceLabel && itemPriceInput) {
+
 // Helper to create a size/price row
 function createSizePriceRow() {
     const row = document.createElement('div');
@@ -100,3 +102,5 @@ categorySelect.addEventListener('change', function() {
 addSizeBtn.addEventListener('click', function() {
     sizePriceContainer.appendChild(createSizePriceRow());
 });
+
+}

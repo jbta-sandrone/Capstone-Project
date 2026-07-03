@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getDatabase, ref, onValue, get, child, set, push } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -14,6 +15,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
 
 // Cloudinary config
 const CLOUD_NAME = "drhczlmtf";      // ✅ your cloud name
@@ -22,6 +24,22 @@ const UPLOAD_PRESET = "cliq_preset"; // ✅ your unsigned preset
 // Helper function to generate a unique 4-digit random order ID
 function generateOrderID() {
   return Math.floor(1000 + Math.random() * 9000); // Generates a random number between 1000 and 9999
+}
+
+function waitForCurrentUser() {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
+
+function handleMissingAuth() {
+  alert("Please log in again to submit your order.");
+  window.location.href = "Login2.html";
 }
 
 // Fetch and display personal information
@@ -268,11 +286,14 @@ document.addEventListener("DOMContentLoaded", function() {
       return;
     }
 
-    const userUid = localStorage.getItem("userUid");
-    if (!userUid) {
-      alert("You are not logged in.");
+    const authUser = await waitForCurrentUser();
+    if (!authUser) {
+      handleMissingAuth();
       return;
     }
+
+    const userUid = authUser.uid;
+    localStorage.setItem("userUid", userUid);
 
     const orderType = form.querySelector('#order-type');
     const notes = form.querySelector('#notes').value;
@@ -280,39 +301,33 @@ document.addEventListener("DOMContentLoaded", function() {
     const orderRef = ref(database, `users/${userUid}/ordercart`);
     const notificationRef = ref(database, `users/${userUid}/notification`);
 
-    get(orderRef)
-      .then(async (snapshot) => {
-        if (snapshot.exists()) {
-          const orders = snapshot.val();
-          const orderID = generateOrderID();
-          const date = new Date().toISOString().split('T')[0];
+    try {
+      const snapshot = await get(orderRef);
+      if (!snapshot.exists()) {
+        console.error("No orders found to save.");
+        return;
+      }
 
-          const newNotificationEntry = push(notificationRef);
+      const orders = snapshot.val();
+      const orderID = generateOrderID();
+      const date = new Date().toISOString().split('T')[0];
 
-          const notificationData = {
-            orderID,
-            date,
-            orders,
-            paymentMethod: paymentMethod ? paymentMethod.value : "",
-            orderType: orderType ? orderType.value : "",
-            notes: notes || "",
-            gcashProof: paymentProofUrl || null // ✅ now Cloudinary URL
-          };
+      const newNotificationEntry = push(notificationRef);
+      const notificationData = {
+        orderID,
+        date,
+        orders,
+        paymentMethod: paymentMethod ? paymentMethod.value : "",
+        orderType: orderType ? orderType.value : "",
+        notes: notes || "",
+        gcashProof: paymentProofUrl || null
+      };
 
-          set(newNotificationEntry, notificationData)
-            .then(() => {
-              window.location.href = `receipt.html?orderID=${orderID}`;
-            })
-            .catch((error) => {
-              console.error("❌ Error saving order to notification:", error);
-            });
-        } else {
-          console.error("No orders found to save.");
-        }
-      })
-      .catch((error) => {
-        console.error("❌ Error fetching order cart data:", error);
-      });
+      await set(newNotificationEntry, notificationData);
+      window.location.href = `receipt.html?orderID=${orderID}`;
+    } catch (error) {
+      console.error("❌ Error processing checkout order:", error);
+    }
   });
 }
 

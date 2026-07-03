@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 import { getDatabase, ref, onValue, remove, set, get, child, push, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // Firebase configuration
@@ -14,6 +15,18 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
+
+function waitForCurrentUser() {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
 
 // --- Modal logic for viewing images closely ---
 const imageModal = document.getElementById('image-modal');
@@ -29,6 +42,26 @@ function showImageModal(src) {
     modalImg.src = src;
     imageModal.style.display = "flex";
   }
+}
+
+function escapeHTML(value) {
+  return (value ?? "").toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function getOrderItems(orderData) {
+  return orderData.orders ? Object.values(orderData.orders) : [];
+}
+
+function getOrderTotal(orderData) {
+  return getOrderItems(orderData).reduce((sum, item) => {
+    const price = parseFloat((item.price || "0").toString().replace(/[^\d.]/g, "")) || 0;
+    return sum + price;
+  }, 0);
 }
 
 const runningTimers = {};
@@ -94,6 +127,18 @@ async function saveToHistory(orderData, userUid) {
 
 // Move order to global orderqueue and save to history
 async function moveToOrderQueue(orderData, notifKey, userUid) {
+  const authUser = await waitForCurrentUser();
+  if (!authUser) {
+    console.error("Cannot move to orderqueue: user is not authenticated.");
+    return;
+  }
+
+  const authenticatedUid = authUser.uid;
+  if (!userUid || userUid !== authenticatedUid) {
+    userUid = authenticatedUid;
+    localStorage.setItem("userUid", userUid);
+  }
+
   if (orderData._canceled) return;
   if (orderData._movedToQueue || orderData.done || orderData.queued) return;
   orderData._movedToQueue = true;
@@ -144,148 +189,155 @@ function showOverlay(orderData, notifKey, userUid) {
 
   const overlay = document.createElement('div');
   overlay.id = 'order-details-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.background = 'rgba(0,0,0,0.5)';
-  overlay.style.display = 'flex';
-  overlay.style.justifyContent = 'center';
-  overlay.style.alignItems = 'center';
-  overlay.style.zIndex = '9999';
+  overlay.className = 'order-details-overlay';
 
   const form = document.createElement('div');
-form.style.background = '#fffbe6';
-form.style.border = '2px solid #d0b273';
-form.style.borderRadius = '12px';
-form.style.padding = '32px 24px';
-form.style.minWidth = '320px';
-form.style.maxWidth = '90vw';
-form.style.boxShadow = '0 2px 16px rgba(0,0,0,0.15)';
-form.style.position = 'relative';
-// Add these lines:
-form.style.maxHeight = '550px';
-form.style.overflowY = 'auto';
+  form.className = 'order-details-modal';
+
+  const orderDate = new Date(orderData.date || Date.now()).toLocaleString("en-PH", {
+    timeZone: "Asia/Manila",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour12: true
+  });
+  const orderItems = getOrderItems(orderData);
+  const orderTotal = getOrderTotal(orderData);
 
   form.innerHTML = `
   <div id="order-details-content">
-    <div style="text-align:center; margin-bottom:18px;">
-      <h2 style="margin:0; font-size:1.7em; letter-spacing:1px;">Order Details</h2>
-      <div style="font-size:15px; color:#555;">
-        ${new Date(orderData.date || Date.now()).toLocaleString("en-PH", {
-  timeZone: "Asia/Manila",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  hour12: true
-})}
+    <header class="order-details-header">
+      <div>
+        <p class="order-details-eyebrow">B-Hive Cafe Receipt</p>
+        <h2>Order Details</h2>
       </div>
-      <div style="margin-top:4px; font-size:14px; color:#888;">
-        Order ID: <strong>${orderData.orderID || ""}</strong>
+      <div class="order-id-badge">
+        <span>Order ID</span>
+        <strong>${escapeHTML(orderData.orderID || "")}</strong>
       </div>
-    </div>
+    </header>
 
-    <div style="margin-bottom:10px;">
-      <div style="margin-bottom:10px;"><strong>Payment Method:</strong> ${orderData.paymentMethod || ""}</div>
-      <div style="margin-bottom:10px;"><strong>Order Type:</strong> ${orderData.orderType || ""}</div>
-      <div style="margin-bottom:20px;"><strong>Notes:</strong> ${orderData.notes ? orderData.notes : "<em>None</em>"}</div>
-    </div>
+    <section class="order-details-grid" aria-label="Order information">
+      <div class="order-info-card">
+        <span>Date</span>
+        <strong>${escapeHTML(orderDate)}</strong>
+      </div>
+      <div class="order-info-card">
+        <span>Payment Method</span>
+        <strong>${escapeHTML(orderData.paymentMethod || "N/A")}</strong>
+      </div>
+      <div class="order-info-card">
+        <span>Order Type</span>
+        <strong>${escapeHTML(orderData.orderType || "N/A")}</strong>
+      </div>
+    </section>
 
-    <div style="margin-bottom:10px;">
-      <strong>Orders:</strong>
-      <table style="width:100%; border-collapse:collapse; margin-top:8px; font-size:15px;">
-        <thead>
-          <tr style="background:#f5e9c6;">
-            <th style="text-align:left; padding:6px;">Item</th>
-            <th style="text-align:center; padding:6px;">Qty</th>
-            <th style="text-align:center; padding:6px;">Size</th>
-            <th style="text-align:center; padding:6px;">Sugar</th>
-            <th style="text-align:center; padding:6px;">Add-Ons</th>
-            <th style="text-align:right; padding:6px;">Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${
-            orderData.orders
-              ? Object.values(orderData.orders).map(item => `
-                <tr>
-                  <td style="padding:6px;">${item.item || ""}</td>
-                  <td style="text-align:center; padding:6px;">${item.quantity || ""}</td>
-                  <td style="text-align:center; padding:6px;">${item.size || ""}</td>
-                  <td style="text-align:center; padding:6px;">${item.sugar || ""}</td>
-                  <td style="text-align:center; padding:6px;">${item.addons || item.addon || ""}</td>
-                  <td style="text-align:right; padding:6px;">${item.price || ""}</td>
-                </tr>
-              `).join("")
-              : `<tr><td colspan="6" style="padding:6px;">No orders found.</td></tr>`
-          }
-        </tbody>
-      </table>
-    </div>
+    <section class="order-notes-card">
+      <span>Notes</span>
+      <p>${orderData.notes ? escapeHTML(orderData.notes) : "<em>None</em>"}</p>
+    </section>
 
-    <div style="margin-top:12px; font-size:16px; text-align:right;">
-      <strong>Total: </strong>
-      ${
-        orderData.orders
-          ? "P" + Object.values(orderData.orders).reduce((sum, item) => {
-              const price = parseFloat((item.price || "0").replace(/[^\d.]/g, "")) || 0;
-              return sum + price;
-            }, 0).toFixed(2)
-          : "P0.00"
-      }
-    </div>
+    <section class="order-items-card">
+      <div class="order-section-heading">
+        <h3>Ordered Items</h3>
+        <span>${orderItems.length} item${orderItems.length === 1 ? "" : "s"}</span>
+      </div>
+      <div class="order-items-table-wrap">
+        <table class="order-items-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Size</th>
+              <th>Sugar</th>
+              <th>Add-Ons</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${
+              orderItems.length
+                ? orderItems.map(item => `
+                  <tr>
+                    <td data-label="Item">${escapeHTML(item.item || "")}</td>
+                    <td data-label="Qty">${escapeHTML(item.quantity || "")}</td>
+                    <td data-label="Size">${escapeHTML(item.size || item.type || "")}</td>
+                    <td data-label="Sugar">${escapeHTML(item.sugar || "")}</td>
+                    <td data-label="Add-Ons">${escapeHTML(item.addons || item.addon || "")}</td>
+                    <td data-label="Price">${escapeHTML(item.price || "")}</td>
+                  </tr>
+                `).join("")
+                : `<tr><td colspan="6">No orders found.</td></tr>`
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-    <div style="margin:24px 0px; text-align:center; font-size:16px; color:green; font-weight:bold;">
-      THANK YOU FOR YOUR ORDER!
+    <section class="order-total-card">
+      <span>Total Amount</span>
+      <strong>P${orderTotal.toFixed(2)}</strong>
+    </section>
+
+    <div class="order-thank-you">
+      Thank you for your order!
     </div>
   </div>
 `;
 
-
-
   // --- GCash Payment Proof Display in Overlay with Modal ---
   if (orderData.gcashProof) {
     const proofDiv = document.createElement('div');
-    proofDiv.innerHTML = `<strong>GCash Payment Proof:</strong><br>
-      <img src="${orderData.gcashProof}" alt="GCash Proof"
-           style="max-width:200px;max-height:200px;border-radius:8px;margin-top:6px;cursor:pointer;">
-      <br>
-      <button class="view-img-btn" style="margin-top:8px;padding:6px 16px;border-radius:6px;border:none;background:#1976d2;color:#fff;cursor:pointer;">View Image</button>
+    proofDiv.className = "order-proof-card";
+    proofDiv.innerHTML = `<div>
+        <span>GCash Payment Proof</span>
+        <strong>Uploaded receipt image</strong>
+      </div>
+      <img src="${escapeHTML(orderData.gcashProof)}" alt="GCash Proof">
+      <button type="button" class="view-img-btn">View Image</button>
     `;
     proofDiv.querySelector('img').onclick = () => showImageModal(orderData.gcashProof);
     proofDiv.querySelector('.view-img-btn').onclick = () => showImageModal(orderData.gcashProof);
     form.appendChild(proofDiv);
   }
 
+  const modalActions = document.createElement('div');
+  modalActions.className = "order-details-actions";
+  form.appendChild(modalActions);
+
   // --- Download Receipt button ---
 const downloadBtn = document.createElement('button');
 downloadBtn.textContent = "Download Order";
-downloadBtn.style.background = "#1976d2";
-downloadBtn.style.color = "#fff";
-downloadBtn.style.border = "none";
-downloadBtn.style.borderRadius = "8px";
-downloadBtn.style.padding = "11px";
-downloadBtn.style.fontSize = "16px";
-downloadBtn.style.cursor = "pointer";
-downloadBtn.style.marginTop = "8px";
-downloadBtn.style.marginRight = "10px";
+downloadBtn.type = "button";
+downloadBtn.className = "download-order-btn";
 
-// Insert before Cancel Order button
-form.appendChild(downloadBtn);
+const closeActionBtn = document.createElement('button');
+closeActionBtn.textContent = "Close";
+closeActionBtn.type = "button";
+closeActionBtn.className = "order-details-close-action";
+closeActionBtn.onclick = (e) => {
+    e.stopPropagation();
+    overlay.classList.add('is-closing');
+    setTimeout(() => overlay.remove(), 180);
+    const modal = document.getElementById('confirmation-modal');
+    if (modal) modal.style.display = "none";
+};
+
+modalActions.appendChild(downloadBtn);
+modalActions.appendChild(closeActionBtn);
 
 // Download logic
 downloadBtn.onclick = () => {
     // Hide close/cancel/download buttons for clean receipt
     closeBtn.style.display = "none";
-    cancelBtn.style.display = "none";
+    closeActionBtn.style.display = "none";
     downloadBtn.style.display = "none";
 
     const content = document.getElementById('order-details-content');
-    html2canvas(content, { backgroundColor: "#fffbe6", scale: 2 }).then(canvas => {
+    html2canvas(content, { backgroundColor: "#fffdf8", scale: 2 }).then(canvas => {
         // Restore buttons
         closeBtn.style.display = "";
-        cancelBtn.style.display = "";
+        closeActionBtn.style.display = "";
         downloadBtn.style.display = "";
 
         // Download image
@@ -301,16 +353,13 @@ downloadBtn.onclick = () => {
   const closeBtn = document.createElement('button');
   closeBtn.textContent = "×";
   closeBtn.type = "button";
-  closeBtn.style.position = "absolute";
-  closeBtn.style.top = "12px";
-  closeBtn.style.right = "16px";
-  closeBtn.style.background = "none";
-  closeBtn.style.border = "none";
-  closeBtn.style.fontSize = "28px";
-  closeBtn.style.cursor = "pointer";
+  closeBtn.innerHTML = "&times;";
+  closeBtn.className = "order-details-close";
+  closeBtn.setAttribute("aria-label", "Close order details");
   closeBtn.onclick = (e) => {
     e.stopPropagation();
-    overlay.remove();
+    overlay.classList.add('is-closing');
+    setTimeout(() => overlay.remove(), 180);
     const modal = document.getElementById('confirmation-modal');
     if (modal) modal.style.display = "none";
   };
@@ -332,10 +381,10 @@ downloadBtn.onclick = () => {
   const remaining = TIMER_DURATION - elapsed;
   if (remaining > 0) {
     setTimeout(async () => {
-      cancelBtn.disabled = true;
-      cancelBtn.style.opacity = "0.6";
-      cancelBtn.style.cursor = "not-allowed";
-      cancelBtn.title = "You can no longer cancel this order.";
+      closeActionBtn.disabled = true;
+      closeActionBtn.style.opacity = "0.6";
+      closeActionBtn.style.cursor = "not-allowed";
+      closeActionBtn.title = "This order is being submitted.";
       if (document.body.contains(overlay)) overlay.remove();
       const modal = document.getElementById('confirmation-modal');
       if (modal) modal.style.display = "none";
@@ -345,9 +394,11 @@ downloadBtn.onclick = () => {
 }
 
 // Display notifications and handle timer/history/queue logic
-function displayNotifications() {
-  const userUid = localStorage.getItem("userUid");
+async function displayNotifications() {
+  const authUser = await waitForCurrentUser();
+  const userUid = authUser ? authUser.uid : localStorage.getItem("userUid");
   if (!userUid) return;
+  if (authUser) localStorage.setItem("userUid", userUid);
 
   const notifRef = ref(database, `users/${userUid}/notification`);
   const notifContainer = document.querySelector('.order-status-card');
@@ -392,7 +443,7 @@ function displayNotifications() {
           icon.className = "fas fa-check-circle status-icon";
           icon.style.color = "#28a745";
         } else {
-          icon.className = "fas fa-spinner fa-spin status-icon";
+          icon.className = "status-icon status-spinner";
         }
         card.appendChild(icon);
 

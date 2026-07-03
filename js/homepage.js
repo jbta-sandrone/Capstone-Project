@@ -14,6 +14,20 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const CATEGORY_NAV_DELAY = 300;
+const cardToSection = {
+  card1: ".milktea-part",
+  card2: ".espresso-part",
+  card3: ".ftea-part",
+  card4: ".silog-part",
+  card5: ".sandwich-part",
+  card6: ".snacks-part",
+  card7: ".ricemeal-part",
+  card8: ".noodlepasta-part",
+  card9: ".fries-part",
+  card10: ".extras-part",
+  card11: ".bestseller-part"
+};
 
 // Nodes to fetch item names from
 const nodes = [
@@ -138,12 +152,61 @@ function handleSearch() {
     // Find which node this item belongs to
     const foundNode = itemNodeMap[searchValue];
     if (foundNode && nodeToCard[foundNode]) {
-      document.getElementById("order-link").click();
-      setTimeout(() => {
-        document.getElementById(nodeToCard[foundNode]).click();
-      }, 300); // Delay to ensure order section is visible
+      openOrderCategory(nodeToCard[foundNode]);
     }
   }
+}
+
+function openOrderCategory(cardId) {
+  const orderLink = document.getElementById("order-link");
+  if (orderLink) orderLink.click();
+
+  setTimeout(() => {
+    const categoryCard = document.getElementById(cardId);
+    if (!categoryCard) return;
+
+    categoryCard.click();
+    const targetSection = document.querySelector(cardToSection[cardId]) || categoryCard;
+    targetSection.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+  }, CATEGORY_NAV_DELAY);
+}
+
+function openBestsellers() {
+  openOrderCategory("card11");
+}
+
+function openHistorySection() {
+  const historyLink = document.getElementById("history-link");
+  if (historyLink) historyLink.click();
+
+  setTimeout(() => {
+    const historyTab = document.getElementById("history-tab");
+    if (historyTab) historyTab.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 80);
+}
+
+function showComingSoonMessage(trigger) {
+  const panel = document.querySelector(".home-hero__panel");
+  if (!panel) return;
+
+  let message = panel.querySelector(".home-hero__toast");
+  if (!message) {
+    message = document.createElement("div");
+    message.className = "home-hero__toast";
+    message.setAttribute("role", "status");
+    message.setAttribute("aria-live", "polite");
+    panel.appendChild(message);
+  }
+
+  message.textContent = "Smart Search is coming soon.";
+  message.classList.add("is-visible");
+  if (trigger) trigger.classList.add("is-notifying");
+
+  clearTimeout(showComingSoonMessage.timer);
+  showComingSoonMessage.timer = setTimeout(() => {
+    message.classList.remove("is-visible");
+    if (trigger) trigger.classList.remove("is-notifying");
+  }, 2200);
 }
 
 function renderBestsellerTable() {
@@ -166,14 +229,9 @@ function renderBestsellerTable() {
         <img src="${item.image || '../img/bhivelogo.jpg'}" alt="${item.name || "Bestseller"}" >
       `;
 
-      // Add click event: click order-link then card11
+      // Reuse the same Best Seller navigation as the Home metric.
       tableBg.addEventListener('click', function () {
-        const orderLink = document.getElementById('order-link');
-        const card11 = document.getElementById('card11');
-        if (orderLink) orderLink.click();
-        setTimeout(() => {
-          if (card11) card11.click();
-        }, 300);
+        openBestsellers();
       });
 
       tableDiv.appendChild(tableBg);
@@ -187,12 +245,12 @@ function renderBestsellerTable() {
 
 document.addEventListener('DOMContentLoaded', () => {
   renderBestsellerTable();
+  setupHeroMetrics();
 });
 
 // Add event listener for the "viewall" button
 document.getElementById('viewall').addEventListener('click', function () {
-  // Simulate a click on the "order-link"
-  document.getElementById('order-link').click();
+  openBestsellers();
 });
 
 // Add event listener for the "order-now" button
@@ -200,6 +258,30 @@ document.getElementById('order-now').addEventListener('click', function () {
   document.getElementById('order-link').click();
 });
 
+function setupHeroMetrics() {
+  document.querySelectorAll("[data-home-metric]").forEach((metric) => {
+    if (metric.dataset.metricReady === "true") return;
+    metric.dataset.metricReady = "true";
+
+    metric.addEventListener("click", () => {
+      const action = metric.dataset.homeMetric;
+
+      if (action === "bestsellers") {
+        openBestsellers();
+        return;
+      }
+
+      if (action === "history") {
+        openHistorySection();
+        return;
+      }
+
+      if (action === "smart-search") {
+        showComingSoonMessage(metric);
+      }
+    });
+  });
+}
 
 
 

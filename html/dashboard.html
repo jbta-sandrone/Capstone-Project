@@ -36,18 +36,17 @@
 
  <form class="form1">
     
-    <a href="menu.html" id="menu"><i class="fas fa-bars" id="menu-icon" style="font-size: 24px; cursor: pointer;"></i></a>
+    
     <h1> B-Hive <img src="../img/bhivelogo.jpg" class="logo"></h1>
 
-     <a href="cart.html" id="cart"><i class="fas fa-shopping-cart"></i></a>
-    <h6 class="number-cart">0</h6>
-    <a href="notification.html" id="notification"><i class="fas fa-bell"></i></a>
-    <h5 class="number-bell">0</h5>
-    
-    <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-        <span class="visually-hidden">New alerts</span>
-    </span>
-    
+    <div class="icon-badge-wrap">
+        <a href="cart.html" id="cart"><i class="fas fa-shopping-cart"></i></a>
+        <h6 class="number-cart">0</h6>
+    </div>
+    <div class="icon-badge-wrap">
+        <a href="notification.html" id="notification"><i class="fas fa-bell"></i></a>
+        <h5 class="number-bell">0</h5>
+    </div>
 </form>
 
   <div class="nav-container">
@@ -77,18 +76,18 @@
           <button type="button" class="order-now" id="order-now">Order Now</button>
         </div>
         <div class="home-hero__panel">
-          <div class="home-hero__metric">
+          <button type="button" class="home-hero__metric" data-home-metric="bestsellers">
             <strong>Best Sellers</strong>
             <span>Quick access to featured B-Hive favorites.</span>
-          </div>
-          <div class="home-hero__metric">
+          </button>
+          <button type="button" class="home-hero__metric home-hero__metric--soon" data-home-metric="smart-search" aria-disabled="true">
             <strong>Smart Search</strong>
-            <span>Find menu items and jump straight to their category.</span>
-          </div>
-          <div class="home-hero__metric">
+            <span>Menu discovery tools are coming soon.</span>
+          </button>
+          <button type="button" class="home-hero__metric" data-home-metric="history">
             <strong>Order History</strong>
             <span>Review previous orders without leaving the app.</span>
-          </div>
+          </button>
         </div>
       </section>
 
@@ -198,10 +197,14 @@
 </div>
 
 <!-- Add to Cart Overlay -->
-<div id="cart-overlay" style="display:none; position:fixed; left:0; right:0; bottom:0; height:auto; min-height:260px; background:#fff; box-shadow:0 -2px 16px rgba(0,0,0,0.2); z-index:9999; transition:transform 0.4s cubic-bezier(.4,0,.2,1); transform:translateY(100%);">
-  <button id="cart-overlay-x" style="position:absolute; top:10px; right:16px; background:none; border:none; font-size:22px; color:#888; cursor:pointer;">&times;</button>
-  <div id="cart-overlay-content">
-    <!-- Dynamic customization form will be injected here -->
+<div id="cart-overlay">
+  <div class="cart-overlay-panel" role="dialog" aria-modal="true" aria-label="Customize order item">
+    <button type="button" id="cart-overlay-x" aria-label="Close cart overlay">
+      <i class="fas fa-times" aria-hidden="true"></i>
+    </button>
+    <div id="cart-overlay-content">
+      <!-- Dynamic customization form will be injected here -->
+    </div>
   </div>
 </div>
 
@@ -340,7 +343,20 @@
 
 
       <script>
-      document.getElementById('order-link').addEventListener('click', function (event) {
+      function setDashboardDisplay(element, display) {
+    if (element) element.style.display = display;
+}
+
+function clickDashboardElement(element) {
+    if (element) element.click();
+}
+
+const orderLinkEl = document.getElementById('order-link');
+const homeLinkEl = document.getElementById('home-link');
+const historyLinkEl = document.getElementById('history-link');
+
+if (orderLinkEl) {
+      orderLinkEl.addEventListener('click', function (event) {
     event.preventDefault();
 
     const cardGroup = document.getElementById('card-group');
@@ -351,18 +367,20 @@
     const cartContainer = document.querySelector('.cart-container');
     const historyTab = document.getElementById('history-tab');
 
-    homeSection.style.display = 'none';
-    milkteaSection.style.display = 'block';
-    espressoSection.style.display = 'none';
-    fteaSection.style.display = 'none';
-    historyTab.style.display = 'none';
-    cardGroup.style.display = 'flex';
-    cartContainer.style.display = 'block';
+    setDashboardDisplay(homeSection, 'none');
+    setDashboardDisplay(milkteaSection, 'block');
+    setDashboardDisplay(espressoSection, 'none');
+    setDashboardDisplay(fteaSection, 'none');
+    setDashboardDisplay(historyTab, 'none');
+    setDashboardDisplay(cardGroup, 'flex');
+    setDashboardDisplay(cartContainer, 'block');
 
-    document.getElementById('card1').click();
+    clickDashboardElement(document.getElementById('card1'));
 });
+}
 
-document.getElementById('home-link').addEventListener('click', function (event) {
+if (homeLinkEl) {
+homeLinkEl.addEventListener('click', function (event) {
     event.preventDefault();
 
     const cardGroup = document.getElementById('card-group');
@@ -373,16 +391,18 @@ document.getElementById('home-link').addEventListener('click', function (event) 
     const cartContainer = document.querySelector('.cart-container');
     const historyTab = document.getElementById('history-tab');
 
-    cardGroup.style.display = 'none';
-    milkteaSection.style.display = 'none';
-    espressoSection.style.display = 'none';
-    fteaSection.style.display = 'none';
-    historyTab.style.display = 'none';
-    homeSection.style.display = 'block';
-    cartContainer.style.display = 'none';
+    setDashboardDisplay(cardGroup, 'none');
+    setDashboardDisplay(milkteaSection, 'none');
+    setDashboardDisplay(espressoSection, 'none');
+    setDashboardDisplay(fteaSection, 'none');
+    setDashboardDisplay(historyTab, 'none');
+    setDashboardDisplay(homeSection, 'block');
+    setDashboardDisplay(cartContainer, 'none');
 });
+}
 
-document.getElementById('history-link').addEventListener('click', function (event) {
+if (historyLinkEl) {
+historyLinkEl.addEventListener('click', function (event) {
     event.preventDefault();
 
     const cardGroup = document.getElementById('card-group');
@@ -393,17 +413,18 @@ document.getElementById('history-link').addEventListener('click', function (even
     const cartContainer = document.querySelector('.cart-container');
     const historyTab = document.getElementById('history-tab');
 
-    cardGroup.style.display = 'none';
-    homeSection.style.display = 'none';
-    milkteaSection.style.display = 'none';
-    espressoSection.style.display = 'none';
-    fteaSection.style.display = 'none';
-    historyTab.style.display = 'block';
-    cartContainer.style.display = 'none';
+    setDashboardDisplay(cardGroup, 'none');
+    setDashboardDisplay(homeSection, 'none');
+    setDashboardDisplay(milkteaSection, 'none');
+    setDashboardDisplay(espressoSection, 'none');
+    setDashboardDisplay(fteaSection, 'none');
+    setDashboardDisplay(historyTab, 'block');
+    setDashboardDisplay(cartContainer, 'none');
 });
+}
 
 window.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('home-link').click();
+    clickDashboardElement(homeLinkEl);
 });
 
 

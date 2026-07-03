@@ -14,9 +14,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const fastAddForm = document.getElementById('fast-add-form');
 
 // --- Fast form submit handler ---
-document.getElementById('fast-add-form').addEventListener('submit', async function(e) {
+if (fastAddForm) {
+fastAddForm.addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const itemName = document.getElementById('item-name').value;
@@ -123,7 +125,7 @@ document.getElementById('fast-add-form').addEventListener('submit', async functi
         // Update the item in the database
         await update(ref(database, `${window.editingItem.node}/${window.editingItem.key}`), data)
             .then(() => {
-                document.getElementById('fast-form-overlay').style.display = 'none';
+                if (overlay) overlay.style.display = 'none';
                 this.reset();
                 window.editingItem = null;
                 // Optionally refresh the display for the relevant category
@@ -149,7 +151,7 @@ document.getElementById('fast-add-form').addEventListener('submit', async functi
     const refNode = ref(database, dbNode);
     push(refNode, data)
         .then(() => {
-            document.getElementById('fast-form-overlay').style.display = 'none';
+            if (overlay) overlay.style.display = 'none';
             this.reset();
             // Refresh the display for the relevant category
             if (dbNode === "milktea") displayMilkteaItems && displayMilkteaItems();
@@ -168,14 +170,15 @@ document.getElementById('fast-add-form').addEventListener('submit', async functi
             // No error alert
         });
 });
+}
 
 // Optional: Reset editing state when overlay is closed
 const overlay = document.getElementById('fast-form-overlay');
 const overlayClose = document.getElementById('fast-form-close');
-if (overlayClose) {
+if (overlay && overlayClose && fastAddForm) {
     overlayClose.onclick = function() {
         overlay.style.display = 'none';
         window.editingItem = null;
-        document.getElementById('fast-add-form').reset();
+        fastAddForm.reset();
     };
 }

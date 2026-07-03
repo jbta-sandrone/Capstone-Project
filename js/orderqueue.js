@@ -57,6 +57,7 @@ function getYear(dateObj) {
 
 function displayOrderQueue() {
   const queueDiv = document.querySelector('.queue');
+  if (!queueDiv) return;
   queueDiv.innerHTML = "";
 
   const queueRef = ref(database, 'orderqueue');
@@ -423,16 +424,18 @@ const monthRef = ref(database, `monthly/${monthKey}`);
   });
 }
 
-displayOrderQueue();
+if (document.querySelector('.queue')) {
+  displayOrderQueue();
 
-let lastOrderCount = null;
-const queueRef = ref(database, 'orderqueue');
-onValue(queueRef, (snapshot) => {
-    const data = snapshot.val();
-    const currentCount = data ? Object.keys(data).length : 0;
-    if (lastOrderCount !== null && currentCount > lastOrderCount) {
-        // New order detected, refresh the page
-        window.location.reload();
-    }
-    lastOrderCount = currentCount;
-});
+  let lastOrderCount = null;
+  const queueRef = ref(database, 'orderqueue');
+  onValue(queueRef, (snapshot) => {
+      const data = snapshot.val();
+      const currentCount = data ? Object.keys(data).length : 0;
+      if (lastOrderCount !== null && currentCount > lastOrderCount) {
+          // New order detected, refresh the page
+          window.location.reload();
+      }
+      lastOrderCount = currentCount;
+  });
+}
