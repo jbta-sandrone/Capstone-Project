@@ -6,6 +6,19 @@ A modern **AI-powered café ordering web application** that allows customers to 
 
 ---
 
+# 🧪 Demo Accounts
+
+Explore the application without creating your own account.
+
+| Role | Email | Password |
+|------|-------|----------|
+| 👤 Customer | `CustomerDemo123` | `@CustomerDemo123` |
+| 🛠 Administrator | `AdminDemo123` | `@AdminDemo123` |
+
+> **Tip:** Use the Customer account to explore the ordering experience and the Administrator account to access the admin dashboard, analytics, reports, and item management.
+
+---
+
 ## 🚀 Built With
 
 ### 🎨 Frontend
