@@ -1,37 +1,229 @@
-CLIQ: B-Hive Cafe Mobile Ordering Application
-============
+# ☕ CLIQ AI
+### B-Hive Café Mobile Ordering Application
 
-Developers: 	
-Jonel Bryan T. Ablog
-Jerick T. Naval
-Ian Kelly C. Pescador
-Vandolph U. Tamayo
+![HTML](https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 
----
+![CSS](https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
-1. Project Overview
-------------------
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
-A mobile ordering application for B-Hive Café. It aims to create a user-friendly system 
-that streamlines the ordering process for customers and staff, addressing inefficiencies 
-in the traditional manual ordering system. The system enhances order management, reduces 
-staff workload, and minimizes potential errors, ultimately improving customer satisfaction 
-and operational efficiency. 
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 
----
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
 
-2. How to Open the Project
---------------------------
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 
-1. Extract the CLIQ.zip folder to a location on your computer.
-2. Open the www folder inside the extracted CLIQ folder.
-3. Open the index.html file in a web browser to launch the application.
-4. All pages that use Firebase already include the Firebase SDK scripts and firebase-config.js, 
-so no additional setup is required for basic testing.
+![Gemini AI](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)
+
+A modern **AI-powered café ordering web application** that allows customers to browse the menu, customize orders, receive personalized menu recommendations, and place orders through an intuitive dashboard.
+
+Built as a capstone project and transformed into a portfolio-quality full-stack web application.
 
 ---
 
-NOTES:
+## ✨ Features
 
-- The project uses Firebase SDK v8 (classic style) — no modules required.
-- Ensure that firebase-config.js remains included in all pages that interact with Firebase.
+### 👤 Customer
+- Secure Login & Registration
+- Browse Menu
+- Smart Search AI Recommendation
+- Customize Orders
+- Shopping Cart
+- Checkout System
+- Order Receipt
+- Order History
+- Order Tracking
+- Notifications
+- Feedback Submission
+
+### 🛠 Admin
+- Dashboard Overview
+- Revenue Analytics
+- Weekly & Yearly Reports
+- Best Seller Analytics
+- Item Management
+- Customer Feedback Management
+- Sales Reports
+- Order Management
+
+---
+
+# 🤖 AI Smart Search
+
+CLIQ AI includes an intelligent **Smart Search** feature powered by **Google Gemini AI**.
+
+Users simply choose:
+
+- 🍵 Preferred Category
+- 😋 Taste Preference
+- ❄️ Temperature
+- 💰 Budget Range
+
+The AI analyzes the available café menu and returns **2–3 personalized recommendations** based on the user's preferences.
+
+Each recommendation includes:
+
+- Match Score
+- Recommended Item
+- Price
+- Why It Was Recommended
+- Tags
+- Add to Cart
+
+Unlike a traditional chatbot, Smart Search is a **guided recommendation system**, making it faster, easier to use, and more efficient with AI usage.
+
+---
+
+# 🏗 Architecture
+
+```text
+                CLIQ AI
+
+        HTML • CSS • JavaScript
+                  │
+                  ▼
+      Firebase Authentication
+      Firebase Realtime Database
+                  │
+                  ▼
+        Node.js + Express Backend
+                  │
+                  ▼
+         Google Gemini 2.5 Flash
+                  │
+                  ▼
+      Personalized Recommendations
+```
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
+
+- HTML5
+- CSS3
+- JavaScript
+
+## Backend
+
+- Node.js
+- Express.js
+
+## Database
+
+- Firebase Realtime Database
+
+## Authentication
+
+- Firebase Authentication
+
+## Artificial Intelligence
+
+- Google Gemini API (Gemini 2.5 Flash)
+
+## Deployment
+
+- GitHub Pages (Frontend)
+- Render (Backend)
+
+---
+
+# 🚀 Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/Capstone-Project.git
+```
+
+## Frontend
+
+Simply open
+
+```text
+index.html
+```
+
+or run with Live Server.
+
+---
+
+## Backend
+
+Navigate to the server folder
+
+```bash
+cd server
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Create
+
+```text
+.env
+```
+
+Example
+
+```env
+GEMINI_API_KEY=YOUR_API_KEY
+PORT=3000
+```
+
+Start the development server
+
+```bash
+npm run dev
+```
+
+---
+
+# 📁 Project Structure
+
+```text
+Capstone-Project
+│
+├── css/
+├── html/
+├── img/
+├── js/
+├── server/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── routes/
+│   ├── services/
+│   ├── package.json
+│   ├── server.js
+│   └── .env.example
+│
+├── index.html
+└── README.md
+```
+
+---
+
+# 🔐 Security
+
+- Gemini API Key is securely stored using server-side environment variables.
+- Firebase Authentication protects authenticated user operations.
+- AI requests are processed through the Express backend, ensuring the API key is never exposed to the client.
+
+---
+
+# 👨‍💻 Developer
+
+**Jonel Bryan T. Ablog**
+
+Bachelor of Science in Information Technology
+
+University of Northern Philippines
+
+---
+
+## ⭐ If you like this project, consider giving it a Star!
