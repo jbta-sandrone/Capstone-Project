@@ -21,7 +21,7 @@ A modern **AI-powered café ordering web application** that allows customers to 
 
 ### 🔥 Database & Authentication
 
-![Firebase Realtime Database](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![Firebase Realtime Database](https://img.shields.io/badge/Firebase_Realtime-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 ![Firebase Authentication](https://img.shields.io/badge/Firebase_Auth-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 
 ### 🤖 Artificial Intelligence
