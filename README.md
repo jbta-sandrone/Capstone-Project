@@ -1,4 +1,4 @@
-# ☕ CLIQ AI
+# ☕ IntelliCLIQ
 
 ### AI-Powered B-Hive Café Ordering Web Application
 
