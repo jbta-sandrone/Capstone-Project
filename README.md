@@ -1,6 +1,6 @@
 # ☕ CLIQ AI
 
-### AI-Powered Café Ordering Web Application
+### AI-Powered B-Hive Café Ordering Web Application
 
 A modern **AI-powered café ordering web application** that allows customers to browse the menu, customize orders, receive personalized AI recommendations, and place orders through an intuitive dashboard.
 
