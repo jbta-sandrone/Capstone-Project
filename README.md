@@ -1,19 +1,32 @@
 # ☕ CLIQ AI
-### B-Hive Café Mobile Ordering Application
+
+### AI-Powered Café Ordering Web Application
+
+A modern **AI-powered café ordering web application** that allows customers to browse the menu, customize orders, receive personalized AI recommendations, and place orders through an intuitive dashboard.
+
+---
+
+## 🚀 Built With
+
+### 🎨 Frontend
 
 ![HTML](https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-
 ![CSS](https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+### ⚙️ Backend
 
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
 
-![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+### 🔥 Database & Authentication
 
-![Gemini AI](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![Firebase Authentication](https://img.shields.io/badge/Firebase_Auth-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+
+### 🤖 Artificial Intelligence
+
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)
 
 A modern **AI-powered café ordering web application** that allows customers to browse the menu, customize orders, receive personalized menu recommendations, and place orders through an intuitive dashboard.
 
