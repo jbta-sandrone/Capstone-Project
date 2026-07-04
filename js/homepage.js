@@ -15,8 +15,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const CATEGORY_NAV_DELAY = 300;
-// Replace this with the deployed backend URL when moving from localhost to Render.
-const RECOMMENDATIONS_API_URL = "http://localhost:3000/api/recommendations";
+// Local development URL: http://localhost:3000/api/recommendations
+const RECOMMENDATIONS_API_URL = "https://intellicliq.onrender.com/api/recommendations";
 const SMART_SEARCH_THINKING_MS = 3600;
 const cardToSection = {
   card1: ".milktea-part",
@@ -628,6 +628,5 @@ function escapeSmartSearchHtml(value) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-
 
 
