@@ -80,9 +80,9 @@
             <strong>Best Sellers</strong>
             <span>Quick access to featured B-Hive favorites.</span>
           </button>
-          <button type="button" class="home-hero__metric home-hero__metric--soon" data-home-metric="smart-search" aria-disabled="true">
+          <button type="button" class="home-hero__metric" data-home-metric="smart-search">
             <strong>Smart Search</strong>
-            <span>Menu discovery tools are coming soon.</span>
+            <span>Choose your cravings and get cafe recommendations.</span>
           </button>
           <button type="button" class="home-hero__metric" data-home-metric="history">
             <strong>Order History</strong>
@@ -90,6 +90,79 @@
           </button>
         </div>
       </section>
+
+      <div class="smart-search-modal" id="smart-search-modal" aria-hidden="true">
+        <div class="smart-search-dialog" role="dialog" aria-modal="true" aria-labelledby="smart-search-title">
+          <button type="button" class="smart-search-close" id="smart-search-close" aria-label="Close Smart Search">&times;</button>
+
+          <div class="smart-search-panel__header">
+            <div>
+              <p class="smart-search-eyebrow">Smart Search</p>
+              <h2 id="smart-search-title">Find a good match for your craving.</h2>
+            </div>
+          </div>
+
+          <form class="smart-search-form" id="smart-search-form">
+            <label>
+              <span>Preferred Category</span>
+              <select id="smart-category" required>
+                <option value="" disabled selected>Select category</option>
+                <option value="Any">Any</option>
+                <option value="Milk Tea">Milk Tea</option>
+                <option value="Espresso">Espresso</option>
+                <option value="Fruit Tea">Fruit Tea</option>
+                <option value="Silog">Silog</option>
+                <option value="Sandwiches">Sandwiches</option>
+                <option value="Snacks">Snacks</option>
+                <option value="Rice Meals">Rice Meals</option>
+                <option value="Noodles & Pasta">Noodles & Pasta</option>
+                <option value="Fries">Fries</option>
+                <option value="Extras">Extras</option>
+                <option value="Best Seller">Best Seller</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Taste Preference</span>
+              <select id="smart-taste" required>
+                <option value="" disabled selected>Select taste</option>
+                <option value="Sweet">Sweet</option>
+                <option value="Creamy">Creamy</option>
+                <option value="Coffee-forward">Coffee-forward</option>
+                <option value="Fruity">Fruity</option>
+                <option value="Savory">Savory</option>
+                <option value="Light">Light</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Temperature</span>
+              <select id="smart-temperature" required>
+                <option value="" disabled selected>Select temperature</option>
+                <option value="Any">Any</option>
+                <option value="Cold">Cold</option>
+                <option value="Hot">Hot</option>
+                <option value="Room temperature">Room temperature</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Budget Range</span>
+              <select id="smart-budget" required>
+                <option value="" disabled selected>Select budget</option>
+                <option value="Under P100">Under P100</option>
+                <option value="P100-P150">P100-P150</option>
+                <option value="P150-P200">P150-P200</option>
+                <option value="Any budget">Any budget</option>
+              </select>
+            </label>
+
+            <button type="submit" id="smart-search-submit">Start Searching</button>
+          </form>
+
+          <div class="smart-search-results" id="smart-search-results" aria-live="polite"></div>
+        </div>
+      </div>
 
       <div class="search-container">
         <input type="text" id="search-bar" placeholder="Search..." class="search-bar">

@@ -14,8 +14,8 @@
     "about.html",
     "faqs.html",
     "feedback.html",
-    "termsandcondition.html",
-    "privacypolicy.html"
+    "t&c.html",
+    "pp.html"
   ]);
 
   const adminPages = new Set([
@@ -96,8 +96,8 @@
       ["about.html", "fas fa-info-circle", "About", "about"],
       ["faqs.html", "fas fa-question-circle", "FAQs", "faqs"],
       ["feedback.html", "fas fa-comment-dots", "Feedback", "feedback"],
-      ["termsandcondition.html", "fas fa-file-contract", "Terms", "terms"],
-      ["privacypolicy.html", "fas fa-shield-alt", "Policy", "policy"]
+      ["t&c.html", "fas fa-file-contract", "Terms", "terms"],
+      ["pp.html", "fas fa-shield-alt", "Policy", "policy"]
     ];
 
     const onsiteLinks = [
@@ -368,8 +368,8 @@
       ["about.html", "fas fa-info-circle", "About"],
       ["faqs.html", "fas fa-question-circle", "FAQs"],
       ["feedback.html", "fas fa-comment-dots", "Feedback"],
-      ["termsandcondition.html", "fas fa-file-contract", "Terms"],
-      ["privacypolicy.html", "fas fa-shield-alt", "Privacy"]
+      ["t&c.html", "fas fa-file-contract", "Terms"],
+      ["pp.html", "fas fa-shield-alt", "Privacy"]
     ];
 
     const admin = [

@@ -121,28 +121,84 @@
 
   function setupLogoutModal() {
     const logoutBtn = document.querySelector(".logout");
-    const modal = document.getElementById("confirmation-modal");
-    const modalMessage = document.getElementById("modal-message");
-    const confirmBtn = document.getElementById("modal-confirm-btn");
-    const cancelBtn = document.getElementById("modal-cancel-btn");
-
-    if (!logoutBtn || !modal || !modalMessage || !confirmBtn || !cancelBtn) return;
+    if (!logoutBtn) return;
 
     logoutBtn.addEventListener("click", (event) => {
       event.preventDefault();
-      modalMessage.textContent = "Are you sure you want to logout?";
-      modal.style.display = "flex";
-      modal.style.zIndex = "10001";
+      openLogoutModal();
+    });
+  }
+
+  function getLogoutModal() {
+    let modal = document.getElementById("cliq-logout-modal");
+    if (modal) return modal;
+
+    modal = document.createElement("div");
+    modal.id = "cliq-logout-modal";
+    modal.className = "cliq-logout-modal";
+    modal.setAttribute("aria-hidden", "true");
+    modal.innerHTML = `
+      <div class="cliq-logout-backdrop" data-logout-cancel></div>
+      <div class="cliq-logout-dialog" role="dialog" aria-modal="true" aria-labelledby="cliq-logout-title">
+        <button type="button" class="cliq-logout-close" aria-label="Cancel logout" data-logout-cancel>
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="cliq-logout-icon">
+          <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h2 id="cliq-logout-title">Log out?</h2>
+        <p>Are you sure you want to log out?</p>
+        <div class="cliq-logout-actions">
+          <button type="button" class="cliq-logout-cancel" data-logout-cancel>Cancel</button>
+          <button type="button" class="cliq-logout-confirm">Yes, Log Out</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.querySelectorAll("[data-logout-cancel]").forEach((button) => {
+      button.addEventListener("click", closeLogoutModal);
     });
 
-    confirmBtn.onclick = () => {
-      modal.style.display = "none";
-      window.location.href = "index.html";
-    };
+    const confirm = modal.querySelector(".cliq-logout-confirm");
+    if (confirm) confirm.addEventListener("click", performLogout);
 
-    cancelBtn.onclick = () => {
-      modal.style.display = "none";
-    };
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modal.classList.contains("is-open")) {
+        closeLogoutModal();
+      }
+    });
+
+    return modal;
+  }
+
+  function openLogoutModal() {
+    const modal = getLogoutModal();
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("cliq-modal-open");
+
+    const cancel = modal.querySelector(".cliq-logout-cancel");
+    if (cancel) cancel.focus();
+  }
+
+  function closeLogoutModal() {
+    const modal = document.getElementById("cliq-logout-modal");
+    if (!modal) return;
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("cliq-modal-open");
+  }
+
+  function performLogout() {
+    [
+      "loggedInUsername",
+      "userUid",
+      "pendingNewEmail",
+      "emailChangePending"
+    ].forEach((key) => localStorage.removeItem(key));
+
+    window.location.href = "index.html";
   }
 
   function setupMobileSidebar() {

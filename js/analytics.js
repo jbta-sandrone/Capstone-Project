@@ -380,7 +380,7 @@ function renderWeeklyReport() {
           <div><strong>Orders:</strong> ${info.totalOrders || 0}</div>
           <div><strong>Sales:</strong> ₱${(info.totalSales || 0).toLocaleString(undefined, {minimumFractionDigits:2})}</div>
           <button class="archive-btn" title="Archive row" style="background:none;border:none;cursor:pointer;margin-top:8px;">
-            <i class="fa fa-archive" style="color:#1976d2;font-size:18px;"></i>
+            <i class="fa fa-archive" style="color:white;font-size:18px;"></i>
           </button>
         `;
         card.querySelector('.archive-btn').onclick = () => {
@@ -524,7 +524,7 @@ function renderMonthlyReport() {
           <div><strong>Orders:</strong> ${info.totalOrders || 0}</div>
           <div><strong>Sales:</strong> ₱${(info.totalSales || 0).toLocaleString(undefined, {minimumFractionDigits:2})}</div>
           <button class="archive-btn" title="Archive row" style="background:none;border:none;cursor:pointer;margin-top:8px;">
-            <i class="fa fa-archive" style="color:#1976d2;font-size:18px;"></i>
+            <i class="fa fa-archive" style="color:white;font-size:18px;"></i>
           </button>
         `;
         card.querySelector('.archive-btn').onclick = (e) => {
@@ -645,7 +645,7 @@ function renderAnnualReport() {
           <div><strong>Orders:</strong> ${info.totalOrders || 0}</div>
           <div><strong>Sales:</strong> ₱${(info.totalSales || 0).toLocaleString(undefined, {minimumFractionDigits:2})}</div>
           <button class="archive-btn" title="Archive row" style="background:none;border:none;cursor:pointer;margin-top:8px;">
-            <i class="fa fa-archive" style="color:#1976d2;font-size:18px;"></i>
+            <i class="fa fa-archive" style="color:white;font-size:18px;"></i>
           </button>
         `;
         card.querySelector('.archive-btn').onclick = () => {
@@ -838,7 +838,7 @@ function renderAnalyticsReport() {
 function renderArchiveRecords() {
   const reportContent = document.getElementById('report-content');
   reportContent.innerHTML = `<h3>Archived Records</h3>
-    <div style="margin-bottom:18px;">
+    <div class="archive-filter-actions" style="margin-bottom:18px;">
       <button id="show-weekly-archive" style="margin:6px 8px 6px 0;padding:8px 18px;border-radius:8px;background:#1976d2;color:#fff;border:none;cursor:pointer;">Show Weekly Archive</button>
       <button id="show-monthly-archive" style="margin:6px 8px 6px 0;padding:8px 18px;border-radius:8px;background:#1976d2;color:#fff;border:none;cursor:pointer;">Show Monthly Archive</button>
       <button id="show-annual-archive" style="margin:6px 8px 6px 0;padding:8px 18px;border-radius:8px;background:#1976d2;color:#fff;border:none;cursor:pointer;">Show Annual Archive</button>
@@ -880,12 +880,12 @@ function renderArchiveRecords() {
             <td>₱${(info.totalSales || 0).toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td>
               <button class="restore-btn" data-key="${week}" style="background:none;border:none;cursor:pointer;">
-                <i class="fa fa-undo" style="color:#388e3c;font-size:18px;" title="Restore"></i>
+                <i class="fa fa-undo" style="color:white;font-size:18px;" title="Restore"></i>
               </button>
             </td>
             <td>
               <button class="delete-archive-btn" data-key="${week}" style="background:none;border:none;cursor:pointer;">
-                <i class="fa fa-trash" style="color:#d32f2f;font-size:18px;" title="Delete"></i>
+                <i class="fa fa-trash" style="color:white;font-size:18px;" title="Delete"></i>
               </button>
             </td>
           </tr>`;
@@ -899,12 +899,12 @@ function renderArchiveRecords() {
             <td>₱${(info.totalSales || 0).toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td>
               <button class="restore-btn" data-key="${month}" style="background:none;border:none;cursor:pointer;">
-                <i class="fa fa-undo" style="color:#388e3c;font-size:18px;" title="Restore"></i>
+                <i class="fa fa-undo" style="color:white;font-size:18px;" title="Restore"></i>
               </button>
             </td>
             <td>
               <button class="delete-archive-btn" data-key="${month}" style="background:none;border:none;cursor:pointer;">
-                <i class="fa fa-trash" style="color:#d32f2f;font-size:18px;" title="Delete"></i>
+                <i class="fa fa-trash" style="color:white;font-size:18px;" title="Delete"></i>
               </button>
             </td>
           </tr>`;
@@ -918,12 +918,12 @@ function renderArchiveRecords() {
             <td>₱${(info.totalSales || 0).toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td>
               <button class="restore-btn" data-key="${year}" style="background:none;border:none;cursor:pointer;">
-                <i class="fa fa-undo" style="color:#388e3c;font-size:18px;" title="Restore"></i>
+                <i class="fa fa-undo" style="color:white;font-size:18px;" title="Restore"></i>
               </button>
             </td>
             <td>
               <button class="delete-archive-btn" data-key="${year}" style="background:none;border:none;cursor:pointer;">
-                <i class="fa fa-trash" style="color:#d32f2f;font-size:18px;" title="Delete"></i>
+                <i class="fa fa-trash" style="color:white;font-size:18px;" title="Delete"></i>
               </button>
             </td>
           </tr>`;

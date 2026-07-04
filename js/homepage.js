@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -15,6 +15,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const CATEGORY_NAV_DELAY = 300;
+// Replace this with the deployed backend URL when moving from localhost to Render.
+const RECOMMENDATIONS_API_URL = "http://localhost:3000/api/recommendations";
+const SMART_SEARCH_THINKING_MS = 3600;
 const cardToSection = {
   card1: ".milktea-part",
   card2: ".espresso-part",
@@ -50,8 +53,23 @@ const nodeToCard = {
   bestseller: "card11"
 };
 
+const nodeLabels = {
+  milktea: "Milk Tea",
+  espresso: "Espresso",
+  fruittea: "Fruit Tea",
+  silog: "Silog",
+  sandwiches: "Sandwiches",
+  snacks: "Snacks",
+  ricemeal: "Rice Meals",
+  noodlepasta: "Noodles & Pasta",
+  fries: "Fries",
+  extras: "Extras",
+  bestseller: "Best Seller"
+};
+
 let allowedSearchTerms = [];
 let itemNodeMap = {}; // { itemName: node }
+let smartSearchMenuItems = [];
 
 // Fetch all item names from each node and map them to their node
 function fetchAllItemNames() {
@@ -185,28 +203,43 @@ function openHistorySection() {
   }, 80);
 }
 
-function showComingSoonMessage(trigger) {
-  const panel = document.querySelector(".home-hero__panel");
-  if (!panel) return;
+function openSmartSearchModal() {
+  const modal = document.getElementById("smart-search-modal");
+  if (!modal) return;
 
-  let message = panel.querySelector(".home-hero__toast");
-  if (!message) {
-    message = document.createElement("div");
-    message.className = "home-hero__toast";
-    message.setAttribute("role", "status");
-    message.setAttribute("aria-live", "polite");
-    panel.appendChild(message);
+  showSmartSearchForm();
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("smart-search-open");
+  document.getElementById("smart-category")?.focus();
+}
+
+function closeSmartSearchModal() {
+  const modal = document.getElementById("smart-search-modal");
+  if (!modal) return;
+
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("smart-search-open");
+}
+
+function showSmartSearchForm() {
+  const form = document.getElementById("smart-search-form");
+  const results = document.getElementById("smart-search-results");
+
+  if (form) form.classList.remove("is-hidden");
+  if (results) {
+    results.classList.remove("is-visible");
+    results.innerHTML = "";
   }
+}
 
-  message.textContent = "Smart Search is coming soon.";
-  message.classList.add("is-visible");
-  if (trigger) trigger.classList.add("is-notifying");
+function showSmartSearchResults() {
+  const form = document.getElementById("smart-search-form");
+  const results = document.getElementById("smart-search-results");
 
-  clearTimeout(showComingSoonMessage.timer);
-  showComingSoonMessage.timer = setTimeout(() => {
-    message.classList.remove("is-visible");
-    if (trigger) trigger.classList.remove("is-notifying");
-  }, 2200);
+  if (form) form.classList.add("is-hidden");
+  if (results) results.classList.add("is-visible");
 }
 
 function renderBestsellerTable() {
@@ -246,6 +279,7 @@ function renderBestsellerTable() {
 document.addEventListener('DOMContentLoaded', () => {
   renderBestsellerTable();
   setupHeroMetrics();
+  setupSmartSearch();
 });
 
 // Add event listener for the "viewall" button
@@ -277,10 +311,322 @@ function setupHeroMetrics() {
       }
 
       if (action === "smart-search") {
-        showComingSoonMessage(metric);
+        openSmartSearchModal();
       }
     });
   });
+}
+
+function setupSmartSearch() {
+  const form = document.getElementById("smart-search-form");
+  const modal = document.getElementById("smart-search-modal");
+  const closeButton = document.getElementById("smart-search-close");
+  const results = document.getElementById("smart-search-results");
+  if (!form || !modal || form.dataset.smartSearchReady === "true") return;
+
+  form.dataset.smartSearchReady = "true";
+  form.addEventListener("submit", handleSmartSearchSubmit);
+  closeButton?.addEventListener("click", closeSmartSearchModal);
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closeSmartSearchModal();
+  });
+
+  results?.addEventListener("click", (event) => {
+    const searchAgainButton = event.target.closest("[data-smart-search-again]");
+    if (searchAgainButton) {
+      showSmartSearchForm();
+      return;
+    }
+
+    const addButton = event.target.closest("[data-smart-add-to-cart]");
+    if (addButton) {
+      openRecommendedItem(addButton.dataset.smartNode, addButton.dataset.smartSectionId);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modal.classList.contains("is-open")) {
+      closeSmartSearchModal();
+    }
+  });
+}
+
+async function handleSmartSearchSubmit(event) {
+  event.preventDefault();
+
+  const submitButton = document.getElementById("smart-search-submit");
+  const results = document.getElementById("smart-search-results");
+  const preferences = {
+    category: document.getElementById("smart-category")?.value || "",
+    taste: document.getElementById("smart-taste")?.value || "",
+    temperature: document.getElementById("smart-temperature")?.value || "",
+    budget: document.getElementById("smart-budget")?.value || ""
+  };
+
+  if (!results) return;
+
+  showSmartSearchResults();
+  renderSmartSearchThinking();
+  if (submitButton) submitButton.disabled = true;
+  const thinkingDelay = waitForSmartSearchThinking();
+
+  try {
+    const menuItems = await fetchMenuItemsForRecommendations();
+    smartSearchMenuItems = menuItems;
+    if (!menuItems.length) {
+      await thinkingDelay;
+      renderSmartSearchRecommendations([]);
+      return;
+    }
+
+    const responsePromise = fetch(RECOMMENDATIONS_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ...preferences,
+        menuItems: menuItems.map(({ image, sectionId, ...item }) => item)
+      })
+    });
+    const [response] = await Promise.all([responsePromise, thinkingDelay]);
+
+    if (!response.ok) {
+      throw new Error(`Recommendation request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    renderSmartSearchRecommendations(data.recommendations || data.items || []);
+  } catch (error) {
+    console.error("Smart Search request failed:", error);
+    await thinkingDelay;
+    results.innerHTML = `
+      <div class="smart-search-status smart-search-status--error">
+        We could not brew recommendations right now. Please try again in a moment.
+        <button type="button" data-smart-search-again>Search Again</button>
+      </div>
+    `;
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
+}
+
+function waitForSmartSearchThinking() {
+  return new Promise((resolve) => {
+    setTimeout(resolve, SMART_SEARCH_THINKING_MS);
+  });
+}
+
+function renderSmartSearchThinking() {
+  const results = document.getElementById("smart-search-results");
+  if (!results) return;
+
+  results.innerHTML = `
+    <div class="smart-search-thinking" role="status" aria-live="polite">
+      <p class="smart-search-thinking__title">☕ Brewing your perfect recommendations...</p>
+      <div class="smart-search-thinking__dots" aria-hidden="true">
+        <div><span class="is-active">◉</span><span>○</span><span>○</span></div>
+        <div><span>○</span><span class="is-active">◉</span><span>○</span></div>
+        <div><span>○</span><span>○</span><span class="is-active">◉</span></div>
+      </div>
+      <div class="smart-search-thinking__steps">
+        <span>Analyzing your taste...</span>
+        <span>Checking available menu...</span>
+        <span>Almost ready...</span>
+      </div>
+    </div>
+  `;
+}
+
+async function fetchMenuItemsForRecommendations() {
+  const snapshots = await Promise.all(nodes.map(async (node) => {
+    const snapshot = await get(ref(database, node));
+    return { node, snapshot };
+  }));
+
+  return snapshots.flatMap(({ node, snapshot }) => {
+    if (!snapshot.exists()) return [];
+
+    const items = [];
+    snapshot.forEach((child) => {
+      const item = child.val() || {};
+      if (item.disabled === true) return;
+
+      items.push({
+        id: child.key,
+        name: item.name || item.type || "Unnamed item",
+        category: nodeLabels[node] || node,
+        node,
+        sectionId: getRecommendationSectionId(node, child.key),
+        image: item.image || "../img/bhivelogo.jpg",
+        price: getRecommendationPriceLabel(item),
+        sizes: Array.isArray(item.sizes) ? item.sizes : [],
+        types: Array.isArray(item.types) ? item.types : []
+      });
+    });
+
+    return items;
+  });
+}
+
+function getRecommendationPriceLabel(item) {
+  if (Array.isArray(item.sizes) && item.sizes.length) {
+    return item.sizes
+      .map((size) => `${size.size || "Option"} P${size.price || 0}`)
+      .join(", ");
+  }
+
+  if (Array.isArray(item.types) && item.types.length) {
+    return item.types
+      .map((type) => `${type.type || "Option"} P${type.price || 0}`)
+      .join(", ");
+  }
+
+  if (item.price !== undefined && item.price !== null && item.price !== "") {
+    return String(item.price).startsWith("P") ? String(item.price) : `P${item.price}`;
+  }
+
+  return "Price unavailable";
+}
+
+function renderSmartSearchRecommendations(recommendations) {
+  const results = document.getElementById("smart-search-results");
+  if (!results) return;
+
+  if (!Array.isArray(recommendations) || recommendations.length === 0) {
+    results.innerHTML = `
+      <div class="smart-search-status">
+        No perfect match found. Try changing your preferences.
+        <button type="button" data-smart-search-again>Search Again</button>
+      </div>
+    `;
+    return;
+  }
+
+  results.innerHTML = `
+    <div class="smart-search-results__header">
+      <div>
+        <p class="smart-search-eyebrow">Recommendations</p>
+        <h3>Fresh matches for you</h3>
+      </div>
+      <button type="button" data-smart-search-again>Search Again</button>
+    </div>
+    <div class="smart-search-card-grid">
+      ${recommendations.slice(0, 3).map((item) => renderSmartSearchCard(item)).join("")}
+    </div>
+  `;
+}
+
+function renderSmartSearchCard(recommendation) {
+  const catalogItem = findRecommendedCatalogItem(recommendation);
+  const item = {
+    ...catalogItem,
+    ...recommendation
+  };
+  const tags = normalizeRecommendationTags(item.tags, item);
+  const matchScore = formatMatchScore(item.matchScore || item.match_score || item.score);
+
+  return `
+    <article class="smart-recommendation-card">
+      <img src="${escapeSmartSearchHtml(item.image || "../img/bhivelogo.jpg")}" alt="${escapeSmartSearchHtml(item.name || "Recommended item")}" loading="lazy">
+      <div class="smart-recommendation-card__body">
+        <div class="smart-recommendation-card__topline">
+          <span>${escapeSmartSearchHtml(item.category || "Menu Item")}</span>
+          <strong>${escapeSmartSearchHtml(matchScore)}</strong>
+        </div>
+        <h3>${escapeSmartSearchHtml(item.name || "Recommended item")}</h3>
+        <p class="smart-recommendation-price">${escapeSmartSearchHtml(item.price || "Price unavailable")}</p>
+        <p>${escapeSmartSearchHtml(item.reason || "This item matches your selected preferences.")}</p>
+
+        <div class="smart-recommendation-tags">
+          ${tags.map((tag) => `<span>${escapeSmartSearchHtml(tag)}</span>`).join("")}
+        </div>
+        <button type="button" class="smart-add-cart" data-smart-add-to-cart data-smart-node="${escapeSmartSearchHtml(item.node || "")}" data-smart-section-id="${escapeSmartSearchHtml(item.sectionId || "")}">
+          Add to Cart
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+function findRecommendedCatalogItem(recommendation) {
+  const targetName = normalizeSmartSearchValue(recommendation.name);
+  const targetCategory = normalizeSmartSearchValue(recommendation.category);
+
+  return smartSearchMenuItems.find((item) => {
+    const nameMatches = normalizeSmartSearchValue(item.name) === targetName;
+    const categoryMatches = !targetCategory || normalizeSmartSearchValue(item.category) === targetCategory;
+    return nameMatches && categoryMatches;
+  }) || smartSearchMenuItems.find((item) => normalizeSmartSearchValue(item.name) === targetName) || {};
+}
+
+function normalizeRecommendationTags(tags, item) {
+  if (Array.isArray(tags) && tags.length) {
+    return tags.slice(0, 4);
+  }
+
+  return [item.category || "Cafe pick", item.matchScore || item.score ? "AI matched" : "Recommended", "Customizable"].slice(0, 4);
+}
+
+function formatMatchScore(value) {
+  if (value === undefined || value === null || value === "") return "92% match";
+  const score = String(value).trim();
+  if (score.toLowerCase().includes("match")) return score;
+  return score.includes("%") ? `${score} match` : `${score}% match`;
+}
+
+function normalizeSmartSearchValue(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function getRecommendationSectionId(node, key) {
+  const prefixes = {
+    milktea: "milktea-section",
+    espresso: "espresso-section",
+    fruittea: "ftea-section",
+    silog: "silog-section",
+    sandwiches: "sandwich-section",
+    snacks: "snacks-section",
+    ricemeal: "ricemeal-section",
+    noodlepasta: "noodlepasta-section",
+    fries: "fries-section",
+    extras: "extras-section",
+    bestseller: "bestseller-section"
+  };
+
+  return `${prefixes[node] || `${node}-section`}${key}`;
+}
+
+function openRecommendedItem(node, sectionId) {
+  const cardId = nodeToCard[node];
+  const itemSection = sectionId ? document.getElementById(sectionId) : null;
+
+  closeSmartSearchModal();
+
+  if (cardId) openOrderCategory(cardId);
+
+  setTimeout(() => {
+    const section = itemSection || (sectionId ? document.getElementById(sectionId) : null);
+    const addButton = section?.querySelector(".add-to-cart:not([disabled])");
+
+    if (section) section.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (addButton) {
+      addButton.click();
+      return;
+    }
+
+    alert("This item is currently unavailable or could not be opened.");
+  }, CATEGORY_NAV_DELAY + 220);
+}
+
+function escapeSmartSearchHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 

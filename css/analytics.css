@@ -269,6 +269,18 @@ select {
   overflow-x: auto;
 }
 
+.archive-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.archive-filter-actions button {
+  margin: 0 !important;
+}
+
 #report-content th,
 #report-content td {
   border: 1px solid #eadfce !important;
@@ -427,6 +439,12 @@ select {
   .report-buttons button,
   #report-content button {
     width: 100%;
+  }
+
+  .archive-filter-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .analytics-kpi-grid,

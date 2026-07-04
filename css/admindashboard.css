@@ -143,23 +143,28 @@ body {
 
 .logout {
   width: 100%;
-  min-height: 44px;
+  min-height: 42px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: 1px solid #e1c5bb;
+  justify-content: flex-start;
+  gap: 10px;
+  border: 1px solid transparent;
   border-radius: var(--admin-radius);
-  background: #f9ece7;
+  background: transparent;
   color: var(--admin-danger);
-  padding: 10px 14px;
-  font-weight: 800;
+  padding: 10px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: left;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .logout:hover {
-  background: #f3ded7;
+  border-color: #e4c5bc;
+  background: #f8ece6;
+  color: #91372f;
   transform: translateY(-1px);
 }
 
