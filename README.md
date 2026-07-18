@@ -200,7 +200,19 @@ Example
 ```env
 GEMINI_API_KEY=YOUR_API_KEY
 PORT=3000
+FIREBASE_PROJECT_ID=cliq-8dba8
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk@example.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+FIREBASE_DATABASE_URL=https://cliq-8dba8-default-rtdb.firebaseio.com/
+AI_USAGE_TIME_ZONE=Asia/Manila
+AI_SEARCH_RESERVATION_TTL_MS=300000
+AI_DATABASE_TIMEOUT_MS=10000
+AI_USAGE_DEBUG=false
 ```
+
+The four `FIREBASE_*` values above must come from a Firebase Admin service account and must only be configured on the backend (including the Render environment). Smart Search verifies the user's Firebase ID token and stores the server-enforced daily count at `aiUsage/<uid>` in Realtime Database. Short-lived `_reservations` may appear under an active user's usage record while Gemini is running; they are removed on success/failure and expire automatically after the configured TTL.
+
+Set `AI_USAGE_DEBUG=true` temporarily to log reservation transaction attempts, commit status, database path, reservation ID, and before/after Firebase values. Keep it disabled during normal production operation.
 
 Start the development server
 

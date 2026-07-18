@@ -721,6 +721,25 @@ body.smart-search-open {
   line-height: 1.15;
 }
 
+.smart-search-usage {
+  width: fit-content;
+  margin: 0;
+  border: 1px solid #dfcfb7;
+  border-radius: 999px;
+  background: #f7f0e5;
+  color: var(--cliq-brand);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.smart-search-usage.is-limit-reached,
+.smart-search-usage.is-error {
+  border-color: #e4c5bc;
+  background: #f8ece6;
+  color: var(--cliq-danger);
+}
+
 .smart-search-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -780,7 +799,7 @@ body.smart-search-open {
 }
 
 #smart-search-submit:disabled {
-  cursor: wait;
+  cursor: not-allowed;
   opacity: 0.72;
   transform: none;
 }
@@ -910,6 +929,24 @@ body.smart-search-open {
   border-color: #e4c5bc;
   background: #f8ece6;
   color: var(--cliq-danger);
+}
+
+.smart-search-status--limit {
+  border-color: #d9bfae;
+  background: #f7ebe3;
+  color: var(--cliq-danger);
+}
+
+.smart-search-status--limit strong,
+.smart-search-status--limit span {
+  display: block;
+}
+
+.smart-search-results__header button:disabled,
+.smart-search-status button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
 }
 
 .smart-search-card-grid {

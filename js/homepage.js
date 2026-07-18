@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -14,9 +15,15 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
 const CATEGORY_NAV_DELAY = 300;
-// Local development URL: http://localhost:3000/api/recommendations
-const RECOMMENDATIONS_API_URL = "https://intellicliq.onrender.com/api/recommendations";
+const IS_LOCAL_DEVELOPMENT = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+const SMART_SEARCH_API_BASE_URL = IS_LOCAL_DEVELOPMENT
+  ? "http://localhost:3000/api"
+  : "https://intellicliq.onrender.com/api";
+const RECOMMENDATIONS_API_URL = `${SMART_SEARCH_API_BASE_URL}/recommendations`;
+const RECOMMENDATIONS_USAGE_API_URL = `${SMART_SEARCH_API_BASE_URL}/recommendations/usage`;
+const SMART_SEARCH_DAILY_LIMIT = 3;
 const SMART_SEARCH_THINKING_MS = 3600;
 const cardToSection = {
   card1: ".milktea-part",
@@ -70,6 +77,9 @@ const nodeLabels = {
 let allowedSearchTerms = [];
 let itemNodeMap = {}; // { itemName: node }
 let smartSearchMenuItems = [];
+let smartSearchRemaining = null;
+let smartSearchUsageLoaded = false;
+let smartSearchRequestPending = false;
 
 // Fetch all item names from each node and map them to their node
 function fetchAllItemNames() {
@@ -211,7 +221,7 @@ function openSmartSearchModal() {
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
   document.body.classList.add("smart-search-open");
-  document.getElementById("smart-category")?.focus();
+  void refreshSmartSearchUsage();
 }
 
 function closeSmartSearchModal() {
@@ -240,6 +250,145 @@ function showSmartSearchResults() {
 
   if (form) form.classList.add("is-hidden");
   if (results) results.classList.add("is-visible");
+}
+
+function waitForFirebaseUser() {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
+  return new Promise((resolve, reject) => {
+    let unsubscribe;
+    unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        if (unsubscribe) unsubscribe();
+        resolve(user);
+      },
+      (error) => {
+        if (unsubscribe) unsubscribe();
+        reject(error);
+      }
+    );
+  });
+}
+
+async function fetchAuthenticatedSmartSearch(url, options = {}) {
+  const user = await waitForFirebaseUser();
+
+  if (!user) {
+    const error = new Error("Please sign in to use AI Smart Search.");
+    error.status = 401;
+    throw error;
+  }
+
+  const idToken = await user.getIdToken();
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      Authorization: `Bearer ${idToken}`,
+    },
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(data.message || `Smart Search request failed (${response.status}).`);
+    error.status = response.status;
+    error.responseData = data;
+    throw error;
+  }
+
+  return data;
+}
+
+function syncSmartSearchSubmitState() {
+  const submitButton = document.getElementById("smart-search-submit");
+  if (!submitButton) return;
+
+  submitButton.disabled =
+    smartSearchRequestPending || !smartSearchUsageLoaded || smartSearchRemaining === 0;
+  submitButton.textContent = smartSearchRequestPending
+    ? "Finding Recommendations..."
+    : "Find Recommendations";
+}
+
+function updateSmartSearchUsage(remaining) {
+  const usage = document.getElementById("smart-search-usage");
+  const normalizedRemaining = Math.min(
+    SMART_SEARCH_DAILY_LIMIT,
+    Math.max(0, Number(remaining) || 0)
+  );
+  const usedSearches = SMART_SEARCH_DAILY_LIMIT - normalizedRemaining;
+
+  smartSearchRemaining = normalizedRemaining;
+  smartSearchUsageLoaded = true;
+
+  if (usage) {
+    usage.textContent = `${usedSearches}/${SMART_SEARCH_DAILY_LIMIT} AI searches used today`;
+    usage.classList.toggle("is-limit-reached", normalizedRemaining === 0);
+    usage.classList.remove("is-error");
+  }
+
+  syncSmartSearchSubmitState();
+}
+
+function setSmartSearchUsageUnavailable(message) {
+  const usage = document.getElementById("smart-search-usage");
+
+  smartSearchRemaining = null;
+  smartSearchUsageLoaded = false;
+  if (usage) {
+    usage.textContent = message;
+    usage.classList.add("is-error");
+    usage.classList.remove("is-limit-reached");
+  }
+  syncSmartSearchSubmitState();
+}
+
+async function refreshSmartSearchUsage() {
+  const usage = document.getElementById("smart-search-usage");
+
+  smartSearchRemaining = null;
+  smartSearchUsageLoaded = false;
+  if (usage) {
+    usage.textContent = "Checking today's AI searches...";
+    usage.classList.remove("is-error", "is-limit-reached");
+  }
+  syncSmartSearchSubmitState();
+
+  try {
+    const data = await fetchAuthenticatedSmartSearch(RECOMMENDATIONS_USAGE_API_URL);
+    const remaining = data.usage?.remaining ?? data.remaining;
+    updateSmartSearchUsage(remaining);
+
+    if (smartSearchRemaining === 0) {
+      renderSmartSearchLimitReached();
+      return;
+    }
+
+    document.getElementById("smart-category")?.focus();
+  } catch (error) {
+    console.error("Could not load Smart Search usage:", error);
+    setSmartSearchUsageUnavailable(
+      error.status === 401
+        ? error.message
+        : "Daily AI search availability could not be loaded. Please try again."
+    );
+  }
+}
+
+function renderSmartSearchLimitReached() {
+  const results = document.getElementById("smart-search-results");
+  if (!results) return;
+
+  showSmartSearchForm();
+  results.classList.add("is-visible");
+  results.innerHTML = `
+    <div class="smart-search-status smart-search-status--limit" role="alert">
+      <strong>Daily AI Smart Search limit reached.</strong>
+      <span>You have used all 3 Smart Searches today.</span>
+      <span>Please try again tomorrow.</span>
+    </div>
+  `;
 }
 
 function renderBestsellerTable() {
@@ -335,7 +484,11 @@ function setupSmartSearch() {
   results?.addEventListener("click", (event) => {
     const searchAgainButton = event.target.closest("[data-smart-search-again]");
     if (searchAgainButton) {
-      showSmartSearchForm();
+      if (smartSearchRemaining === 0) {
+        renderSmartSearchLimitReached();
+      } else {
+        showSmartSearchForm();
+      }
       return;
     }
 
@@ -355,7 +508,6 @@ function setupSmartSearch() {
 async function handleSmartSearchSubmit(event) {
   event.preventDefault();
 
-  const submitButton = document.getElementById("smart-search-submit");
   const results = document.getElementById("smart-search-results");
   const preferences = {
     category: document.getElementById("smart-category")?.value || "",
@@ -364,11 +516,12 @@ async function handleSmartSearchSubmit(event) {
     budget: document.getElementById("smart-budget")?.value || ""
   };
 
-  if (!results) return;
+  if (!results || !smartSearchUsageLoaded || smartSearchRemaining === 0) return;
 
   showSmartSearchResults();
   renderSmartSearchThinking();
-  if (submitButton) submitButton.disabled = true;
+  smartSearchRequestPending = true;
+  syncSmartSearchSubmitState();
   const thinkingDelay = waitForSmartSearchThinking();
 
   try {
@@ -380,7 +533,7 @@ async function handleSmartSearchSubmit(event) {
       return;
     }
 
-    const responsePromise = fetch(RECOMMENDATIONS_API_URL, {
+    const data = await fetchAuthenticatedSmartSearch(RECOMMENDATIONS_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -390,16 +543,42 @@ async function handleSmartSearchSubmit(event) {
         menuItems: menuItems.map(({ image, sectionId, ...item }) => item)
       })
     });
-    const [response] = await Promise.all([responsePromise, thinkingDelay]);
-
-    if (!response.ok) {
-      throw new Error(`Recommendation request failed with status ${response.status}`);
-    }
-
-    const data = await response.json();
+    await thinkingDelay;
+    const remaining = data.usage?.remaining ?? data.remaining;
+    updateSmartSearchUsage(remaining);
     renderSmartSearchRecommendations(data.recommendations || data.items || []);
   } catch (error) {
     console.error("Smart Search request failed:", error);
+
+    if (error.status === 429 && error.responseData?.code === "DAILY_AI_LIMIT_REACHED") {
+      updateSmartSearchUsage(error.responseData?.remaining ?? 0);
+      renderSmartSearchLimitReached();
+      return;
+    }
+
+    if (error.status === 429) {
+      if (Number.isFinite(Number(error.responseData?.remaining))) {
+        updateSmartSearchUsage(error.responseData.remaining);
+      }
+      results.innerHTML = `
+        <div class="smart-search-status smart-search-status--error">
+          ${escapeSmartSearchHtml(error.message)}
+          <button type="button" data-smart-search-again>Try Again</button>
+        </div>
+      `;
+      return;
+    }
+
+    if (error.status === 401) {
+      setSmartSearchUsageUnavailable(error.message);
+      results.innerHTML = `
+        <div class="smart-search-status smart-search-status--error">
+          ${escapeSmartSearchHtml(error.message)}
+        </div>
+      `;
+      return;
+    }
+
     await thinkingDelay;
     results.innerHTML = `
       <div class="smart-search-status smart-search-status--error">
@@ -408,7 +587,8 @@ async function handleSmartSearchSubmit(event) {
       </div>
     `;
   } finally {
-    if (submitButton) submitButton.disabled = false;
+    smartSearchRequestPending = false;
+    syncSmartSearchSubmitState();
   }
 }
 
@@ -495,22 +675,41 @@ function renderSmartSearchRecommendations(recommendations) {
   if (!results) return;
 
   if (!Array.isArray(recommendations) || recommendations.length === 0) {
+    const limitNotice = smartSearchRemaining === 0
+      ? `
+        <strong>Daily AI Smart Search limit reached.</strong>
+        <span>You have used all 3 Smart Searches today.</span>
+        <span>Please try again tomorrow.</span>
+      `
+      : "No perfect match found. Try changing your preferences.";
+
     results.innerHTML = `
-      <div class="smart-search-status">
-        No perfect match found. Try changing your preferences.
-        <button type="button" data-smart-search-again>Search Again</button>
+      <div class="smart-search-status ${smartSearchRemaining === 0 ? "smart-search-status--limit" : ""}">
+        ${limitNotice}
+        <button type="button" data-smart-search-again ${smartSearchRemaining === 0 ? "disabled" : ""}>Search Again</button>
       </div>
     `;
     return;
   }
 
+  const limitNotice = smartSearchRemaining === 0
+    ? `
+      <div class="smart-search-status smart-search-status--limit" role="status">
+        <strong>Daily AI Smart Search limit reached.</strong>
+        <span>You have used all 3 Smart Searches today.</span>
+        <span>Please try again tomorrow.</span>
+      </div>
+    `
+    : "";
+
   results.innerHTML = `
+    ${limitNotice}
     <div class="smart-search-results__header">
       <div>
         <p class="smart-search-eyebrow">Recommendations</p>
         <h3>Fresh matches for you</h3>
       </div>
-      <button type="button" data-smart-search-again>Search Again</button>
+      <button type="button" data-smart-search-again ${smartSearchRemaining === 0 ? "disabled" : ""}>Search Again</button>
     </div>
     <div class="smart-search-card-grid">
       ${recommendations.slice(0, 3).map((item) => renderSmartSearchCard(item)).join("")}
@@ -628,5 +827,3 @@ function escapeSmartSearchHtml(value) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-
-

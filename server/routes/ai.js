@@ -1,10 +1,15 @@
 import { Router } from "express";
-import { getRecommendations } from "../controllers/aiController.js";
+import {
+  getRecommendations,
+  getRecommendationUsage,
+} from "../controllers/aiController.js";
+import { authenticateFirebase } from "../middleware/authenticateFirebase.js";
 
 const router = Router();
 
-// AI recommendation route. Gemini integration will be added in the service layer later.
+router.use(authenticateFirebase);
+
+router.get("/recommendations/usage", getRecommendationUsage);
 router.post("/recommendations", getRecommendations);
 
 export default router;
-
